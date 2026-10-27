@@ -15,6 +15,7 @@ from aio_garmin_personal import (
 )
 
 from .conftest import (
+    ACTIVITIES_PATH,
     SETTINGS_PATH,
     SUMMARY_PATH,
     TOKEN_PATH,
@@ -93,6 +94,68 @@ async def test_user_settings_are_parsed(
     assert settings.display_name == "00000000-0000-4000-8000-000000000000"
     assert settings.time_zone == "Europe/Berlin"
     assert settings.measurement_system == "metric"
+
+
+async def test_activities_are_parsed(
+    client: GarminPersonalClient, garmin: FakeGarmin, token: str
+) -> None:
+    garmin.add("GET", ACTIVITIES_PATH, Reply(body=load_fixture("activities.json")))
+
+    first, second = await client.async_get_activities(limit=2)
+
+    assert first.activity_id == 10000000001
+    assert first.activity_name == "Morning Run"
+    assert first.start_time_gmt == datetime(2026, 10, 22, 5, 15, 2, tzinfo=UTC)
+    assert first.owner_display_name == "00000000-0000-4000-8000-000000000000"
+    assert first.owner_full_name == "Alex Example"
+    assert second.activity_id == 10000000002
+    assert second.activity_name is None
+    assert second.owner_full_name is None
+    (call,) = garmin.calls("GET", ACTIVITIES_PATH)
+    assert call.query == {"start": "0", "limit": "2"}
+
+
+async def test_activities_default_to_twenty_from_the_most_recent(
+    client: GarminPersonalClient, garmin: FakeGarmin, token: str
+) -> None:
+    garmin.add("GET", ACTIVITIES_PATH, Reply(body="[]"))
+
+    assert await client.async_get_activities() == []
+    (call,) = garmin.calls("GET", ACTIVITIES_PATH)
+    assert call.query == {"start": "0", "limit": "20"}
+
+
+@pytest.mark.parametrize("status", [200, 204])
+async def test_empty_activities_body_is_an_empty_list(
+    client: GarminPersonalClient, garmin: FakeGarmin, token: str, status: int
+) -> None:
+    garmin.add("GET", ACTIVITIES_PATH, Reply(status=status))
+
+    assert await client.async_get_activities() == []
+
+
+@pytest.mark.parametrize(
+    "body",
+    ["{}", "[1]", '[{"activityName": "Run"}]', '[{"activityId": true}]'],
+    ids=["object", "not-objects", "no-id", "bool-id"],
+)
+async def test_malformed_activities_raise_response_error(
+    client: GarminPersonalClient, garmin: FakeGarmin, token: str, body: str
+) -> None:
+    garmin.add("GET", ACTIVITIES_PATH, Reply(body=body))
+
+    with pytest.raises(GarminPersonalResponseError):
+        await client.async_get_activities()
+
+
+@pytest.mark.parametrize(("limit", "start"), [(0, 0), (1, -1)])
+async def test_invalid_activity_window_is_rejected(
+    client: GarminPersonalClient, garmin: FakeGarmin, limit: int, start: int
+) -> None:
+    with pytest.raises(ValueError, match="limit must be at least 1"):
+        await client.async_get_activities(limit=limit, start=start)
+
+    assert garmin.calls("GET", ACTIVITIES_PATH) == []
 
 
 async def test_token_is_exchanged_once_for_several_requests(

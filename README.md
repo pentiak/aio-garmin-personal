@@ -65,6 +65,7 @@ All of them derive from `GarminPersonalError`.
 |---|---|
 | `async_get_user_settings()` | `GET /userprofile-service/userprofile/settings` |
 | `async_get_daily_summary(day)` | `GET /usersummary-service/usersummary/daily` |
+| `async_get_activities(limit=, start=)` | `GET /activitylist-service/activities/search/activities` |
 
 More endpoints are added as the Home Assistant integration needs them.
 

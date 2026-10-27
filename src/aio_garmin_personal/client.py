@@ -12,6 +12,7 @@ import aiohttp
 
 from .auth import TokenProvider, parse_retry_after
 from .const import (
+    ACTIVITIES_PATH,
     DAILY_SUMMARY_PATH,
     DEFAULT_BASE_URL,
     DEFAULT_REQUEST_TIMEOUT,
@@ -23,7 +24,7 @@ from .exceptions import (
     GarminPersonalRateLimitError,
     GarminPersonalResponseError,
 )
-from .models import DailySummary, UserSettings
+from .models import Activity, DailySummary, UserSettings
 
 
 class GarminPersonalClient:
@@ -80,6 +81,32 @@ class GarminPersonalClient:
         if not isinstance(body, Mapping):
             raise GarminPersonalResponseError("Daily summary response is not an object")
         return DailySummary.from_dict(body)
+
+    async def async_get_activities(
+        self, *, limit: int = 20, start: int = 0
+    ) -> list[Activity]:
+        """Return the account's activities, most recent first.
+
+        `start` is the zero-based offset of the first activity and `limit` the most to
+        return. An account without activities gives an empty list.
+
+        Raises:
+            ValueError: `limit` is below 1 or `start` below 0.
+        """
+        if limit < 1 or start < 0:
+            raise ValueError("limit must be at least 1 and start at least 0")
+        body = await self._async_get_json(
+            ACTIVITIES_PATH, params={"start": str(start), "limit": str(limit)}
+        )
+        if body is None:
+            return []
+        if not isinstance(body, list) or not all(
+            isinstance(item, Mapping) for item in body
+        ):
+            raise GarminPersonalResponseError(
+                "Activities response is not an array of objects"
+            )
+        return [Activity.from_dict(item) for item in body]
 
     async def _async_get_json(
         self, path: str, params: Mapping[str, str] | None = None
