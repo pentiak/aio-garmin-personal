@@ -85,7 +85,7 @@ async def test_invalidate_forces_new_exchange(
     assert await tokens.async_get_token() == second
 
 
-@pytest.mark.parametrize("status", [401, 403])
+@pytest.mark.parametrize("status", [401, 403, 404])
 async def test_rejected_key_raises_authentication_error(
     session: aiohttp.ClientSession, garmin: FakeGarmin, status: int
 ) -> None:

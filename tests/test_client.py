@@ -200,6 +200,20 @@ async def test_unauthorized_retries_once_with_new_token(
     ]
 
 
+async def test_deleted_key_raises_authentication_error(
+    client: GarminPersonalClient, garmin: FakeGarmin
+) -> None:
+    garmin.add("POST", TOKEN_PATH, Reply(body=make_jwt(time.time() + 86_400)))
+    garmin.add("GET", SUMMARY_PATH, Reply(body=load_fixture("daily_summary.json")))
+    # Deleting the key revokes its tokens, and the endpoint no longer knows the key.
+    garmin.add("GET", SUMMARY_PATH, Reply(status=401))
+    garmin.add("POST", TOKEN_PATH, Reply(status=404))
+    await client.async_get_daily_summary(DAY)
+
+    with pytest.raises(GarminPersonalAuthenticationError):
+        await client.async_get_daily_summary(DAY)
+
+
 async def test_unauthorized_twice_raises_authentication_error(
     client: GarminPersonalClient, garmin: FakeGarmin, token: str
 ) -> None:

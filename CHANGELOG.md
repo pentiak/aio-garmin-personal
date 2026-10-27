@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- A deleted API key raises `GarminPersonalAuthenticationError`. Garmin's token endpoint answers
+  HTTP 404 for it, which raised `GarminPersonalResponseError`.
+
 ## 0.2.0 - 2026-10-27
 
 ### Added

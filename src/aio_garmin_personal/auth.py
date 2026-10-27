@@ -97,7 +97,12 @@ class TokenProvider:
         except (TimeoutError, aiohttp.ClientError) as err:
             raise GarminPersonalConnectionError(f"Token request failed: {err}") from err
 
-        if status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+        # Garmin answers 401 for a key it never issued and 404 for one that was deleted.
+        if status in (
+            HTTPStatus.UNAUTHORIZED,
+            HTTPStatus.FORBIDDEN,
+            HTTPStatus.NOT_FOUND,
+        ):
             raise GarminPersonalAuthenticationError(f"API key rejected (HTTP {status})")
         if status == HTTPStatus.TOO_MANY_REQUESTS:
             raise GarminPersonalRateLimitError(
