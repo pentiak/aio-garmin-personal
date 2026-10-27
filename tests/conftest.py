@@ -19,6 +19,7 @@ from aio_garmin_personal import GarminPersonalClient
 TOKEN_PATH = "/personalapitoken-service/personal-api/personal-api-key/token"  # noqa: S105
 SUMMARY_PATH = "/usersummary-service/usersummary/daily"
 SETTINGS_PATH = "/userprofile-service/userprofile/settings"
+ACTIVITIES_PATH = "/activitylist-service/activities/search/activities"
 API_KEY = "test-api-key"
 NOW = 1_800_000_000.0
 FIXTURES = Path(__file__).parent / "fixtures"

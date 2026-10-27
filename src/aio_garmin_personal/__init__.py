@@ -10,11 +10,12 @@ from .exceptions import (
     GarminPersonalRateLimitError,
     GarminPersonalResponseError,
 )
-from .models import DailySummary, UserSettings
+from .models import Activity, DailySummary, UserSettings
 
 __all__ = [
     "DEFAULT_BASE_URL",
     "AccessToken",
+    "Activity",
     "DailySummary",
     "GarminPersonalAuthenticationError",
     "GarminPersonalClient",

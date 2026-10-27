@@ -35,6 +35,41 @@ class UserSettings:
 
 
 @dataclass(frozen=True, kw_only=True)
+class Activity:
+    """One recorded activity from `/activitylist-service/activities/search/activities`.
+
+    `owner_full_name` is the account holder's name as entered in Garmin Connect; it may be
+    missing.
+    """
+
+    activity_id: int
+    activity_name: str | None
+    start_time_gmt: datetime | None
+    owner_display_name: str | None
+    owner_full_name: str | None
+    raw: Mapping[str, Any] = field(repr=False)
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> Activity:
+        """Build the activity from one element of the decoded JSON array.
+
+        Raises:
+            GarminPersonalResponseError: `activityId` is missing or not an integer.
+        """
+        activity_id = data.get("activityId")
+        if isinstance(activity_id, bool) or not isinstance(activity_id, int):
+            raise GarminPersonalResponseError("Activity has no activityId")
+        return cls(
+            activity_id=activity_id,
+            activity_name=_opt_str(data, "activityName"),
+            start_time_gmt=_opt_gmt_datetime(data, "startTimeGMT"),
+            owner_display_name=_opt_str(data, "ownerDisplayName"),
+            owner_full_name=_opt_str(data, "ownerFullName"),
+            raw=data,
+        )
+
+
+@dataclass(frozen=True, kw_only=True)
 class DailySummary:
     """One day of wellness totals from `/usersummary-service/usersummary/daily`.
 

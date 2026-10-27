@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `async_get_activities()`, returning `Activity` objects with the owner's full name.
+
 ## 0.1.0 - 2026-10-23
 
 ### Added
