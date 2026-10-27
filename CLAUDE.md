@@ -52,8 +52,9 @@ These come from Home Assistant's requirements for core dependencies (Platinum ti
   it.
 - No disk I/O, no environment variables, no logging of keys or tokens.
 - Each PyPI version must match a `vX.Y.Z` tag and be published by `.github/workflows/release.yml`.
-  Never upload by hand. Bump `version` in `pyproject.toml` and move the CHANGELOG entries in the
-  same commit as the release.
+  Never upload by hand. Bump `version` in `pyproject.toml` and move the CHANGELOG entries under a
+  `## X.Y.Z - YYYY-MM-DD` heading in the same commit as the release. That section becomes the
+  GitHub release notes; without it the workflow fails before publishing.
 
 ## Tests
 
