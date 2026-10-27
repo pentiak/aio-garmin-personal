@@ -7,3 +7,6 @@ __pycache__/
 .ruff_cache/
 dist/
 build/
+.claude/
+.mcp.json
+CLAUDE.local.md
