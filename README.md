@@ -61,13 +61,27 @@ All of them derive from `GarminPersonalError`.
 
 ## Supported endpoints
 
-| Method | Endpoint |
-|---|---|
-| `async_get_user_settings()` | `GET /userprofile-service/userprofile/settings` |
-| `async_get_daily_summary(day)` | `GET /usersummary-service/usersummary/daily` |
-| `async_get_activities(limit=, start=)` | `GET /activitylist-service/activities/search/activities` |
+| Method | Endpoint | Longest range |
+|---|---|---|
+| `async_get_user_settings()` | `GET /userprofile-service/userprofile/settings` | |
+| `async_get_daily_summary(day)` | `GET /usersummary-service/usersummary/daily` | |
+| `async_get_daily_overviews(start, end)` | `GET /usersummary-service/v2/dailysummaries` | a few months |
+| `async_get_daily_steps(start, end)` | `GET /usersummary-service/stats/steps/daily/{start}/{end}` | 28 days |
+| `async_get_daily_stress(start, end)` | `GET /usersummary-service/stats/stress/daily/{start}/{end}` | 28 days |
+| `async_get_daily_hydration(start, end)` | `GET /usersummary-service/stats/hydration/daily/{start}/{end}` | 31 days |
+| `async_get_sleep(day)` | `GET /sleep-service/sleep/dailySleep` | |
+| `async_get_sleep_range(start, end)` | `GET /sleep-service/sleep/dailySleepSummariesByDate` | 32 days |
+| `async_get_hrv(day)` | `GET /hrv-service/hrv/{day}` | |
+| `async_get_hrv_summaries(start, end)` | `GET /hrv-service/hrv/daily/{start}/{end}` | 367 days |
+| `async_get_heart_rate(day)` | `GET /wellness-service/wellness/dailyHeartRate` | |
+| `async_get_spo2(day)` | `GET /wellness-service/wellness/daily/spo2acclimation/{day}` | |
+| `async_get_body_battery(start, end)` | `GET /wellness-service/wellness/bodyBattery/reports/daily` | 31 days |
+| `async_get_wellness_activities(start, end)` | `GET /wellnessactivity-service/activity/summary/range/{start}/{end}` | |
+| `async_get_activities(limit=, start=)` | `GET /activitylist-service/activities/search/activities` | |
 
-More endpoints are added as the Home Assistant integration needs them.
+Ranges include both ends. A range longer than Garmin accepts raises
+`GarminPersonalResponseError` with status 400; the limits are Garmin's and may change. Each
+returned object types the commonly used fields and keeps the whole response in `raw`.
 
 ## Development
 

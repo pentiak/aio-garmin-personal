@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+import time
 from typing import Any
 
 import aiohttp
@@ -107,3 +108,10 @@ def client(session: aiohttp.ClientSession, garmin: FakeGarmin) -> GarminPersonal
     return GarminPersonalClient(
         session, API_KEY, base_url=garmin.base_url, request_timeout=2
     )
+
+
+@pytest.fixture
+def token(garmin: FakeGarmin) -> str:
+    value = make_jwt(time.time() + 86_400)
+    garmin.add("POST", TOKEN_PATH, Reply(body=value))
+    return value

@@ -1,0 +1,39 @@
+[
+  {
+    "userProfilePk": 123456789,
+    "activityUuid": {
+      "uuid": "00000000-0000-4000-8000-000000000002"
+    },
+    "calendarDate": "2026-10-22",
+    "rulePK": 4,
+    "activityName": "Breathwork",
+    "notes": null,
+    "wellnessActivityType": "BREATHWORK",
+    "startTimestampGMT": "2026-10-22T19:00:00.0",
+    "endTimestampGMT": "2026-10-22T19:10:00.0",
+    "startTimestampLocal": "2026-10-22T21:00:00.0",
+    "endTimestampLocal": "2026-10-22T21:10:00.0",
+    "summaryTypeDataList": [
+      {
+        "summaryType": "heartRate",
+        "avgValue": 61.0,
+        "minValue": 55.0,
+        "maxValue": 70.0
+      }
+    ],
+    "timeInZoneList": [
+      {
+        "zoneNumber": 1,
+        "zoneLowBoundary": 0,
+        "millisInZone": 600000
+      }
+    ],
+    "deviceMetaData": {
+      "deviceId": 3000000001,
+      "deviceTypeId": 1,
+      "deviceVersionId": 1,
+      "deviceVersion": "1.00",
+      "deviceName": null
+    }
+  }
+]

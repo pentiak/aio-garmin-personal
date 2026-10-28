@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import date, datetime
 from typing import Any
 
+from ._parse import opt_float, opt_gmt_datetime, opt_int, opt_str
 from .exceptions import GarminPersonalResponseError
 
 
@@ -27,9 +28,9 @@ class UserSettings:
     def from_dict(cls, data: Mapping[str, Any]) -> UserSettings:
         """Build the settings from the decoded JSON body."""
         return cls(
-            display_name=_opt_str(data, "displayName"),
-            time_zone=_opt_str(data, "timeZone"),
-            measurement_system=_opt_str(data, "measurementSystem"),
+            display_name=opt_str(data, "displayName"),
+            time_zone=opt_str(data, "timeZone"),
+            measurement_system=opt_str(data, "measurementSystem"),
             raw=data,
         )
 
@@ -61,10 +62,10 @@ class Activity:
             raise GarminPersonalResponseError("Activity has no activityId")
         return cls(
             activity_id=activity_id,
-            activity_name=_opt_str(data, "activityName"),
-            start_time_gmt=_opt_gmt_datetime(data, "startTimeGMT"),
-            owner_display_name=_opt_str(data, "ownerDisplayName"),
-            owner_full_name=_opt_str(data, "ownerFullName"),
+            activity_name=opt_str(data, "activityName"),
+            start_time_gmt=opt_gmt_datetime(data, "startTimeGMT"),
+            owner_display_name=opt_str(data, "ownerDisplayName"),
+            owner_full_name=opt_str(data, "ownerFullName"),
             raw=data,
         )
 
@@ -120,61 +121,25 @@ class DailySummary:
             ) from err
         return cls(
             user_profile_id=user_profile_id,
-            display_name=_opt_str(data, "displayName"),
+            display_name=opt_str(data, "displayName"),
             calendar_date=calendar_date,
-            total_kilocalories=_opt_float(data, "totalKilocalories"),
-            active_kilocalories=_opt_float(data, "activeKilocalories"),
-            bmr_kilocalories=_opt_float(data, "bmrKilocalories"),
-            consumed_kilocalories=_opt_float(data, "consumedKilocalories"),
-            total_steps=_opt_int(data, "totalSteps"),
-            daily_step_goal=_opt_int(data, "dailyStepGoal"),
-            total_distance_meters=_opt_int(data, "totalDistanceMeters"),
-            floors_ascended=_opt_float(data, "floorsAscended"),
-            moderate_intensity_minutes=_opt_int(data, "moderateIntensityMinutes"),
-            vigorous_intensity_minutes=_opt_int(data, "vigorousIntensityMinutes"),
-            resting_heart_rate=_opt_int(data, "restingHeartRate"),
-            min_heart_rate=_opt_int(data, "minHeartRate"),
-            max_heart_rate=_opt_int(data, "maxHeartRate"),
-            average_stress_level=_opt_int(data, "averageStressLevel"),
-            body_battery_most_recent_value=_opt_int(data, "bodyBatteryMostRecentValue"),
-            body_battery_highest_value=_opt_int(data, "bodyBatteryHighestValue"),
-            body_battery_lowest_value=_opt_int(data, "bodyBatteryLowestValue"),
-            last_sync=_opt_gmt_datetime(data, "lastSyncTimestampGMT"),
+            total_kilocalories=opt_float(data, "totalKilocalories"),
+            active_kilocalories=opt_float(data, "activeKilocalories"),
+            bmr_kilocalories=opt_float(data, "bmrKilocalories"),
+            consumed_kilocalories=opt_float(data, "consumedKilocalories"),
+            total_steps=opt_int(data, "totalSteps"),
+            daily_step_goal=opt_int(data, "dailyStepGoal"),
+            total_distance_meters=opt_int(data, "totalDistanceMeters"),
+            floors_ascended=opt_float(data, "floorsAscended"),
+            moderate_intensity_minutes=opt_int(data, "moderateIntensityMinutes"),
+            vigorous_intensity_minutes=opt_int(data, "vigorousIntensityMinutes"),
+            resting_heart_rate=opt_int(data, "restingHeartRate"),
+            min_heart_rate=opt_int(data, "minHeartRate"),
+            max_heart_rate=opt_int(data, "maxHeartRate"),
+            average_stress_level=opt_int(data, "averageStressLevel"),
+            body_battery_most_recent_value=opt_int(data, "bodyBatteryMostRecentValue"),
+            body_battery_highest_value=opt_int(data, "bodyBatteryHighestValue"),
+            body_battery_lowest_value=opt_int(data, "bodyBatteryLowestValue"),
+            last_sync=opt_gmt_datetime(data, "lastSyncTimestampGMT"),
             raw=data,
         )
-
-
-def _opt_str(data: Mapping[str, Any], key: str) -> str | None:
-    value = data.get(key)
-    return value if isinstance(value, str) else None
-
-
-def _opt_int(data: Mapping[str, Any], key: str) -> int | None:
-    value = data.get(key)
-    # bool is a subclass of int and is never a valid metric.
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, int):
-        return value
-    if isinstance(value, float) and value.is_integer():
-        return int(value)
-    return None
-
-
-def _opt_float(data: Mapping[str, Any], key: str) -> float | None:
-    value = data.get(key)
-    if isinstance(value, bool) or not isinstance(value, int | float):
-        return None
-    return float(value)
-
-
-def _opt_gmt_datetime(data: Mapping[str, Any], key: str) -> datetime | None:
-    value = data.get(key)
-    if not isinstance(value, str):
-        return None
-    try:
-        parsed = datetime.fromisoformat(value)
-    except ValueError:
-        return None
-    # Garmin's *GMT fields carry no offset.
-    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
