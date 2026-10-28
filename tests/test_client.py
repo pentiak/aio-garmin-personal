@@ -28,13 +28,6 @@ from .conftest import (
 DAY = date(2026, 10, 23)
 
 
-@pytest.fixture
-def token(garmin: FakeGarmin) -> str:
-    value = make_jwt(time.time() + 86_400)
-    garmin.add("POST", TOKEN_PATH, Reply(body=value))
-    return value
-
-
 async def test_daily_summary_is_parsed(
     client: GarminPersonalClient, garmin: FakeGarmin, token: str
 ) -> None:

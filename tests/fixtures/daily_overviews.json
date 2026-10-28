@@ -1,0 +1,91 @@
+{
+  "data": [
+    {
+      "uuid": "00000000-0000-4000-8000-000000000001",
+      "userProfilePk": 123456789,
+      "calendarDate": "2026-10-22",
+      "source": "GARMIN",
+      "includesWellnessData": true,
+      "includesActivityData": true,
+      "wellnessChronology": {
+        "startTimestampGmt": "2026-10-21T22:00:00.0",
+        "startTimestampLocal": "2026-10-22T00:00:00.0",
+        "endTimestampGmt": "2026-10-22T22:00:00.0",
+        "endTimestampLocal": "2026-10-23T00:00:00.0",
+        "totalDurationInMillis": 86400000
+      },
+      "movement": {
+        "steps": {
+          "value": 9120,
+          "goal": 8000,
+          "distanceInMeters": 7140.0
+        },
+        "pushes": {},
+        "floorsAscended": {
+          "value": 6,
+          "goal": 10,
+          "distanceInMeters": 18.3
+        },
+        "floorsDescended": {
+          "value": 5,
+          "distanceInMeters": 15.2
+        }
+      },
+      "intensityMinutes": {
+        "moderate": 20,
+        "vigorous": 15,
+        "goal": 150
+      },
+      "calories": {
+        "burnedResting": 1650,
+        "burnedActive": 610,
+        "burnedTotal": 2260
+      },
+      "heartRate": {
+        "minValue": 46,
+        "maxValue": 142,
+        "restingValue": 53
+      },
+      "stress": {
+        "avgLevel": 27,
+        "maxLevel": 91,
+        "qualifier": "BALANCED",
+        "totalDurationInMillis": 86400000,
+        "restDurationInMillis": 30000000,
+        "restProportion": 0.35
+      },
+      "bodyBattery": {
+        "minValue": 25,
+        "maxValue": 86,
+        "latestValue": 38,
+        "chargedValue": 61,
+        "drainedValue": 48,
+        "featureVersion": "3.0",
+        "activityEvents": []
+      },
+      "pulseOx": {
+        "avgValue": 95,
+        "minValue": 87,
+        "latestValue": 96,
+        "avgAltitudeInMeters": 120.0,
+        "latestTimestampGmt": "2026-10-22T05:00:00.0",
+        "latestTimestampLocal": "2026-10-22T07:00:00.0"
+      },
+      "respiration": {
+        "avgValue": 14,
+        "minValue": 9,
+        "maxValue": 22,
+        "latestValue": 13,
+        "latestTimestampGmt": "2026-10-22T21:58:00.0",
+        "algorithmVersion": 200
+      },
+      "hydration": {
+        "goalInMl": 2500,
+        "goalInFractionalMl": 2500.0,
+        "consumedInMl": 0,
+        "consumedInFractionalMl": 0.0
+      },
+      "jetLag": {}
+    }
+  ]
+}

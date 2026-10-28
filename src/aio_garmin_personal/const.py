@@ -10,6 +10,20 @@ TOKEN_PATH: Final = "/personalapitoken-service/personal-api/personal-api-key/tok
 USER_SETTINGS_PATH: Final = "/userprofile-service/userprofile/settings"
 DAILY_SUMMARY_PATH: Final = "/usersummary-service/usersummary/daily"
 ACTIVITIES_PATH: Final = "/activitylist-service/activities/search/activities"
+SLEEP_PATH: Final = "/sleep-service/sleep/dailySleep"
+SLEEP_RANGE_PATH: Final = "/sleep-service/sleep/dailySleepSummariesByDate"
+HRV_PATH: Final = "/hrv-service/hrv/{day}"
+HRV_RANGE_PATH: Final = "/hrv-service/hrv/daily/{start}/{end}"
+HEART_RATE_PATH: Final = "/wellness-service/wellness/dailyHeartRate"
+BODY_BATTERY_PATH: Final = "/wellness-service/wellness/bodyBattery/reports/daily"
+SPO2_PATH: Final = "/wellness-service/wellness/daily/spo2acclimation/{day}"
+DAILY_STEPS_PATH: Final = "/usersummary-service/stats/steps/daily/{start}/{end}"
+DAILY_STRESS_PATH: Final = "/usersummary-service/stats/stress/daily/{start}/{end}"
+DAILY_HYDRATION_PATH: Final = "/usersummary-service/stats/hydration/daily/{start}/{end}"
+DAILY_OVERVIEWS_PATH: Final = "/usersummary-service/v2/dailysummaries"
+WELLNESS_ACTIVITIES_PATH: Final = (
+    "/wellnessactivity-service/activity/summary/range/{start}/{end}"
+)
 
 # Garmin's own client renews a token once it is within an hour of expiry.
 TOKEN_REFRESH_MARGIN: Final = 3600.0
