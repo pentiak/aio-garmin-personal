@@ -8,9 +8,9 @@ import pytest
 
 from aio_garmin_personal import (
     BodyBatteryEvent,
+    DailyHeartRate,
     GarminPersonalClient,
     GarminPersonalResponseError,
-    HeartRateDay,
     HeartRateSample,
     HrvReading,
 )
@@ -79,8 +79,8 @@ async def test_sleep_is_parsed(
 
     assert sleep is not None
     assert sleep.calendar_date == DAY
-    assert sleep.sleep_start_gmt == utc(2026, 10, 21, 21, 30)
-    assert sleep.sleep_end_gmt == utc(2026, 10, 22, 5, 0)
+    assert sleep.sleep_start_time_gmt == utc(2026, 10, 21, 21, 30)
+    assert sleep.sleep_end_time_gmt == utc(2026, 10, 22, 5, 0)
     assert sleep.sleep_seconds == 27000
     assert sleep.nap_seconds == 0
     assert sleep.deep_sleep_seconds == 5400
@@ -123,6 +123,22 @@ async def test_sleep_range_is_parsed(
     assert call.query == {"startDate": "2026-10-21", "endDate": "2026-10-22"}
 
 
+async def test_sleep_range_leaves_out_days_without_sleep(
+    client: GarminPersonalClient, garmin: FakeGarmin, token: str
+) -> None:
+    garmin.add(
+        "GET",
+        SLEEP_RANGE_PATH,
+        Reply(
+            body=f"[{load_fixture('sleep_empty.json')}, {load_fixture('sleep.json')}]"
+        ),
+    )
+
+    (night,) = await client.async_get_sleep_range(START, DAY)
+
+    assert night.calendar_date == DAY
+
+
 async def test_hrv_is_parsed(
     client: GarminPersonalClient, garmin: FakeGarmin, token: str
 ) -> None:
@@ -146,8 +162,8 @@ async def test_hrv_is_parsed(
         HrvReading(time_gmt=utc(2026, 10, 21, 21, 35), value=49),
         HrvReading(time_gmt=utc(2026, 10, 21, 21, 40), value=55),
     ]
-    assert hrv.sleep_start_gmt == utc(2026, 10, 21, 21, 30)
-    assert hrv.sleep_end_gmt == utc(2026, 10, 22, 5, 0)
+    assert hrv.sleep_start_time_gmt == utc(2026, 10, 21, 21, 30)
+    assert hrv.sleep_end_time_gmt == utc(2026, 10, 22, 5, 0)
 
 
 async def test_day_without_hrv_is_none(
@@ -259,7 +275,7 @@ async def test_heart_rate_day_without_data(
     ],
 )
 def test_unusable_heart_rate_rows_are_skipped(descriptors: Any, rows: Any) -> None:
-    day = HeartRateDay.from_dict(
+    day = DailyHeartRate.from_dict(
         {"heartRateValueDescriptors": descriptors, "heartRateValues": rows}
     )
 
@@ -283,7 +299,7 @@ async def test_body_battery_is_parsed(
     assert day.events == [
         BodyBatteryEvent(
             event_type="SLEEP",
-            start_gmt=utc(2026, 10, 21, 21, 30),
+            start_time_gmt=utc(2026, 10, 21, 21, 30),
             duration_ms=27_000_000,
             impact=56,
             feedback_type="NONE",
@@ -374,7 +390,7 @@ async def test_daily_overviews_are_parsed(
     assert day.resting_kilocalories == 1650
     assert day.steps == 9120
     assert day.step_goal == 8000
-    assert day.distance_meters == 7140.0
+    assert day.total_distance_meters == 7140.0
     assert day.floors_ascended == 6
     assert day.floors_descended == 5
     assert day.moderate_intensity_minutes == 20
@@ -413,8 +429,8 @@ async def test_wellness_activities_are_parsed(
     assert session.activity_name == "Breathwork"
     assert session.activity_type == "BREATHWORK"
     assert session.calendar_date == DAY
-    assert session.start_gmt == utc(2026, 10, 22, 19, 0)
-    assert session.end_gmt == utc(2026, 10, 22, 19, 10)
+    assert session.start_time_gmt == utc(2026, 10, 22, 19, 0)
+    assert session.end_time_gmt == utc(2026, 10, 22, 19, 10)
 
 
 @pytest.mark.parametrize("name", RANGES)
@@ -505,7 +521,7 @@ async def test_malformed_range_raises_response_error(
 @pytest.mark.parametrize(
     ("name", "body"),
     [
-        ("sleep_range", '[{"calendarDate": null}]'),
+        ("sleep_range", '[{"calendarDate": "22 October"}]'),
         ("hrv_summaries", '{"hrvSummaries": [{"lastNightAvg": 50}]}'),
         ("body_battery", '[{"date": "yesterday"}]'),
         ("daily_steps", '[{"totalSteps": 1}]'),
@@ -545,7 +561,7 @@ async def test_unexpected_field_types_become_none(
 
     assert sleep is not None
     assert sleep.sleep_seconds is None
-    assert sleep.sleep_start_gmt is None
+    assert sleep.sleep_start_time_gmt is None
     assert sleep.score is None
     assert sleep.sleep_need_minutes is None
     assert sleep.window_confirmed is None

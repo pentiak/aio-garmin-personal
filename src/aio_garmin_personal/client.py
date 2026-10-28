@@ -38,16 +38,16 @@ from .exceptions import (
 )
 from .models import Activity, DailySummary, UserSettings
 from .wellness import (
-    BodyBatteryDay,
+    DailyBodyBattery,
+    DailyHeartRate,
+    DailyHrv,
     DailyHydration,
     DailyOverview,
+    DailySleep,
+    DailySpO2,
     DailySteps,
     DailyStress,
-    HeartRateDay,
-    HrvDay,
     HrvSummary,
-    Sleep,
-    SpO2Day,
     WellnessActivity,
 )
 
@@ -129,7 +129,7 @@ class GarminPersonalClient:
             Activity.from_dict(item) for item in _array_of_objects(body, "Activities")
         ]
 
-    async def async_get_sleep(self, calendar_date: date) -> Sleep | None:
+    async def async_get_sleep(self, calendar_date: date) -> DailySleep | None:
         """Return the night that ended on `calendar_date`, or `None` if none was recorded."""
         body = await self._async_get_object(
             SLEEP_PATH, "Sleep", params={"date": calendar_date.isoformat()}
@@ -137,12 +137,13 @@ class GarminPersonalClient:
         # A day without sleep is an object with every field null, the date included.
         if body is None or body.get("calendarDate") is None:
             return None
-        return Sleep.from_dict(body)
+        return DailySleep.from_dict(body)
 
-    async def async_get_sleep_range(self, start: date, end: date) -> list[Sleep]:
+    async def async_get_sleep_range(self, start: date, end: date) -> list[DailySleep]:
         """Return the nights that ended from `start` to `end`, both included.
 
-        Garmin accepts at most 32 days per request.
+        Days without recorded sleep are left out. Garmin accepts at most 32 days per
+        request.
 
         Raises:
             ValueError: `start` is after `end`.
@@ -153,14 +154,18 @@ class GarminPersonalClient:
             "Sleep summaries",
             params={"startDate": start.isoformat(), "endDate": end.isoformat()},
         )
-        return [Sleep.from_dict(item) for item in items]
+        return [
+            DailySleep.from_dict(item)
+            for item in items
+            if item.get("calendarDate") is not None
+        ]
 
-    async def async_get_hrv(self, calendar_date: date) -> HrvDay | None:
+    async def async_get_hrv(self, calendar_date: date) -> DailyHrv | None:
         """Return the night's HRV readings and summary, or `None` without HRV data."""
         body = await self._async_get_object(
             HRV_PATH.format(day=calendar_date.isoformat()), "HRV"
         )
-        return None if body is None else HrvDay.from_dict(body)
+        return None if body is None else DailyHrv.from_dict(body)
 
     async def async_get_hrv_summaries(self, start: date, end: date) -> list[HrvSummary]:
         """Return the HRV summary of each day from `start` to `end` that has one.
@@ -182,20 +187,20 @@ class GarminPersonalClient:
             for item in _array_of_objects(body.get("hrvSummaries"), "HRV summaries")
         ]
 
-    async def async_get_heart_rate(self, calendar_date: date) -> HeartRateDay | None:
+    async def async_get_heart_rate(self, calendar_date: date) -> DailyHeartRate | None:
         """Return the day's heart rate readings and resting rate.
 
-        A day without data still returns a `HeartRateDay`, with every field `None`.
+        A day without data still returns a `DailyHeartRate`, with every field `None`.
         `None` is returned only for an empty body.
         """
         body = await self._async_get_object(
             HEART_RATE_PATH, "Heart rate", params={"date": calendar_date.isoformat()}
         )
-        return None if body is None else HeartRateDay.from_dict(body)
+        return None if body is None else DailyHeartRate.from_dict(body)
 
     async def async_get_body_battery(
         self, start: date, end: date
-    ) -> list[BodyBatteryDay]:
+    ) -> list[DailyBodyBattery]:
         """Return the Body Battery levels and events of each day from `start` to `end`.
 
         Garmin accepts at most 31 days per request.
@@ -209,18 +214,18 @@ class GarminPersonalClient:
             "Body Battery reports",
             params={"startDate": start.isoformat(), "endDate": end.isoformat()},
         )
-        return [BodyBatteryDay.from_dict(item) for item in items]
+        return [DailyBodyBattery.from_dict(item) for item in items]
 
-    async def async_get_spo2(self, calendar_date: date) -> SpO2Day | None:
+    async def async_get_spo2(self, calendar_date: date) -> DailySpO2 | None:
         """Return the day's blood oxygen readings.
 
-        A day without data still returns an `SpO2Day`, with every field `None`. `None` is
+        A day without data still returns an `DailySpO2`, with every field `None`. `None` is
         returned only for an empty body.
         """
         body = await self._async_get_object(
             SPO2_PATH.format(day=calendar_date.isoformat()), "SpO2"
         )
-        return None if body is None else SpO2Day.from_dict(body)
+        return None if body is None else DailySpO2.from_dict(body)
 
     async def async_get_daily_steps(self, start: date, end: date) -> list[DailySteps]:
         """Return the step totals of each day from `start` to `end`.

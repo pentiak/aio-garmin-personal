@@ -1,8 +1,8 @@
 """Typed views of the sleep, heart, stress, Body Battery and daily statistics responses.
 
 Each model types the fields a caller is likely to use and keeps the whole object in `raw`.
-Times named `*_gmt` are timezone-aware UTC; times named `*_local` are naive wall-clock times
-in the account's time zone.
+Times end in `_time_gmt` and are timezone-aware UTC. The wall-clock times in the account's
+time zone are only in `raw`.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from ._parse import (
 
 
 @dataclass(frozen=True, kw_only=True)
-class Sleep:
+class DailySleep:
     """One night from `/sleep-service/sleep/dailySleep` or `dailySleepSummariesByDate`.
 
     `calendar_date` is the day the sleep ended on. Durations are in seconds.
@@ -36,8 +36,8 @@ class Sleep:
     """
 
     calendar_date: date
-    sleep_start_gmt: datetime | None
-    sleep_end_gmt: datetime | None
+    sleep_start_time_gmt: datetime | None
+    sleep_end_time_gmt: datetime | None
     sleep_seconds: int | None
     nap_seconds: int | None
     deep_sleep_seconds: int | None
@@ -58,7 +58,7 @@ class Sleep:
     raw: Mapping[str, Any] = field(repr=False)
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> Sleep:
+    def from_dict(cls, data: Mapping[str, Any]) -> DailySleep:
         """Build the night from one decoded sleep object.
 
         Raises:
@@ -67,8 +67,8 @@ class Sleep:
         overall = opt_obj(opt_obj(data, "sleepScores"), "overall")
         return cls(
             calendar_date=req_date(data, "calendarDate", "Sleep"),
-            sleep_start_gmt=opt_epoch_ms(data, "sleepStartTimestampGMT"),
-            sleep_end_gmt=opt_epoch_ms(data, "sleepEndTimestampGMT"),
+            sleep_start_time_gmt=opt_epoch_ms(data, "sleepStartTimestampGMT"),
+            sleep_end_time_gmt=opt_epoch_ms(data, "sleepEndTimestampGMT"),
             sleep_seconds=opt_int(data, "sleepTimeSeconds"),
             nap_seconds=opt_int(data, "napTimeSeconds"),
             deep_sleep_seconds=opt_int(data, "deepSleepSeconds"),
@@ -140,17 +140,17 @@ class HrvReading:
 
 
 @dataclass(frozen=True, kw_only=True)
-class HrvDay:
+class DailyHrv:
     """One night of HRV from `/hrv-service/hrv/{calendarDate}`, with every reading."""
 
     summary: HrvSummary | None
     readings: list[HrvReading]
-    sleep_start_gmt: datetime | None
-    sleep_end_gmt: datetime | None
+    sleep_start_time_gmt: datetime | None
+    sleep_end_time_gmt: datetime | None
     raw: Mapping[str, Any] = field(repr=False)
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> HrvDay:
+    def from_dict(cls, data: Mapping[str, Any]) -> DailyHrv:
         """Build the night from the decoded JSON body; unusable readings are skipped."""
         summary = data.get("hrvSummary")
         readings = []
@@ -164,8 +164,8 @@ class HrvDay:
             if isinstance(summary, Mapping)
             else None,
             readings=readings,
-            sleep_start_gmt=opt_gmt_datetime(data, "sleepStartTimestampGMT"),
-            sleep_end_gmt=opt_gmt_datetime(data, "sleepEndTimestampGMT"),
+            sleep_start_time_gmt=opt_gmt_datetime(data, "sleepStartTimestampGMT"),
+            sleep_end_time_gmt=opt_gmt_datetime(data, "sleepEndTimestampGMT"),
             raw=data,
         )
 
@@ -179,7 +179,7 @@ class HeartRateSample:
 
 
 @dataclass(frozen=True, kw_only=True)
-class HeartRateDay:
+class DailyHeartRate:
     """One day of heart rate from `/wellness-service/wellness/dailyHeartRate`.
 
     `samples` holds the day's readings in time order; intervals without a reading are left
@@ -195,7 +195,7 @@ class HeartRateDay:
     raw: Mapping[str, Any] = field(repr=False)
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> HeartRateDay:
+    def from_dict(cls, data: Mapping[str, Any]) -> DailyHeartRate:
         """Build the day from the decoded JSON body."""
         points = series(
             data,
@@ -236,14 +236,14 @@ class BodyBatteryEvent:
     """
 
     event_type: str | None
-    start_gmt: datetime | None
+    start_time_gmt: datetime | None
     duration_ms: int | None
     impact: int | None
     feedback_type: str | None
 
 
 @dataclass(frozen=True, kw_only=True)
-class BodyBatteryDay:
+class DailyBodyBattery:
     """One day from `/wellness-service/wellness/bodyBattery/reports/daily`."""
 
     calendar_date: date
@@ -254,7 +254,7 @@ class BodyBatteryDay:
     raw: Mapping[str, Any] = field(repr=False)
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> BodyBatteryDay:
+    def from_dict(cls, data: Mapping[str, Any]) -> DailyBodyBattery:
         """Build the day from one element of the decoded JSON array.
 
         Raises:
@@ -279,7 +279,7 @@ class BodyBatteryDay:
             events=[
                 BodyBatteryEvent(
                     event_type=opt_str(event, "eventType"),
-                    start_gmt=opt_gmt_datetime(event, "eventStartTimeGmt"),
+                    start_time_gmt=opt_gmt_datetime(event, "eventStartTimeGmt"),
                     duration_ms=opt_int(event, "durationInMilliseconds"),
                     impact=opt_int(event, "bodyBatteryImpact"),
                     feedback_type=opt_str(event, "feedbackType"),
@@ -299,7 +299,7 @@ class SpO2Sample:
 
 
 @dataclass(frozen=True, kw_only=True)
-class SpO2Day:
+class DailySpO2:
     """One day from `/wellness-service/wellness/daily/spo2acclimation/{calendarDate}`.
 
     Values are blood oxygen saturation in percent. `hourly_averages` holds one value per
@@ -317,7 +317,7 @@ class SpO2Day:
     raw: Mapping[str, Any] = field(repr=False)
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> SpO2Day:
+    def from_dict(cls, data: Mapping[str, Any]) -> DailySpO2:
         """Build the day from the decoded JSON body."""
         points = series(
             data,
@@ -451,7 +451,7 @@ class DailyOverview:
     resting_kilocalories: int | None
     steps: int | None
     step_goal: int | None
-    distance_meters: float | None
+    total_distance_meters: float | None
     floors_ascended: int | None
     floors_descended: int | None
     moderate_intensity_minutes: int | None
@@ -499,7 +499,7 @@ class DailyOverview:
             resting_kilocalories=opt_int(calories, "burnedResting"),
             steps=opt_int(steps, "value"),
             step_goal=opt_int(steps, "goal"),
-            distance_meters=opt_float(steps, "distanceInMeters"),
+            total_distance_meters=opt_float(steps, "distanceInMeters"),
             floors_ascended=opt_int(opt_obj(movement, "floorsAscended"), "value"),
             floors_descended=opt_int(opt_obj(movement, "floorsDescended"), "value"),
             moderate_intensity_minutes=opt_int(intensity, "moderate"),
@@ -535,8 +535,8 @@ class WellnessActivity:
     activity_name: str | None
     activity_type: str | None
     calendar_date: date | None
-    start_gmt: datetime | None
-    end_gmt: datetime | None
+    start_time_gmt: datetime | None
+    end_time_gmt: datetime | None
     raw: Mapping[str, Any] = field(repr=False)
 
     @classmethod
@@ -546,7 +546,7 @@ class WellnessActivity:
             activity_name=opt_str(data, "activityName"),
             activity_type=opt_str(data, "wellnessActivityType"),
             calendar_date=opt_date(data, "calendarDate"),
-            start_gmt=opt_gmt_datetime(data, "startTimestampGMT"),
-            end_gmt=opt_gmt_datetime(data, "endTimestampGMT"),
+            start_time_gmt=opt_gmt_datetime(data, "startTimestampGMT"),
+            end_time_gmt=opt_gmt_datetime(data, "endTimestampGMT"),
             raw=data,
         )
