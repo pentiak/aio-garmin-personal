@@ -199,11 +199,11 @@ class DailyHeartRate:
         """Build the day from the decoded JSON body."""
         points = series(
             data,
-            rows_key="heartRateValues",
-            descriptors_key="heartRateValueDescriptors",
-            index_key="index",
-            name_key="key",
-            value_name="heartrate",
+            rows_field="heartRateValues",
+            descriptors_field="heartRateValueDescriptors",
+            index_field="index",
+            name_field="key",
+            value_field="heartrate",
         )
         return cls(
             calendar_date=opt_date(data, "calendarDate"),
@@ -262,11 +262,11 @@ class DailyBodyBattery:
         """
         points = series(
             data,
-            rows_key="bodyBatteryValuesArray",
-            descriptors_key="bodyBatteryValueDescriptorDTOList",
-            index_key="bodyBatteryValueDescriptorIndex",
-            name_key="bodyBatteryValueDescriptorKey",
-            value_name="bodyBatteryLevel",
+            rows_field="bodyBatteryValuesArray",
+            descriptors_field="bodyBatteryValueDescriptorDTOList",
+            index_field="bodyBatteryValueDescriptorIndex",
+            name_field="bodyBatteryValueDescriptorKey",
+            value_field="bodyBatteryLevel",
         )
         return cls(
             calendar_date=req_date(data, "date", "Body Battery report"),
@@ -321,11 +321,11 @@ class DailySpO2:
         """Build the day from the decoded JSON body."""
         points = series(
             data,
-            rows_key="spO2HourlyAverages",
-            descriptors_key="spO2HourlyAveragesDescriptorList",
-            index_key="spo2ValueDescIndex",
-            name_key="spo2ValueDescKey",
-            value_name="spo2Level",
+            rows_field="spO2HourlyAverages",
+            descriptors_field="spO2HourlyAveragesDescriptorList",
+            index_field="spo2ValueDescIndex",
+            name_field="spo2ValueDescKey",
+            value_field="spo2Level",
         )
         return cls(
             calendar_date=opt_date(data, "calendarDate"),

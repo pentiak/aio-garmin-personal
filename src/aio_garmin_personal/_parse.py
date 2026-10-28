@@ -99,25 +99,25 @@ def opt_objs(data: Mapping[str, Any], key: str) -> list[Mapping[str, Any]]:
 def series(
     data: Mapping[str, Any],
     *,
-    rows_key: str,
-    descriptors_key: str,
-    index_key: str,
-    name_key: str,
-    value_name: str,
+    rows_field: str,
+    descriptors_field: str,
+    index_field: str,
+    name_field: str,
+    value_field: str,
 ) -> list[tuple[datetime, float]]:
     """Read a time series stored as rows of columns named by a descriptor list.
 
     Rows without a timestamp or a numeric value are skipped.
     """
     columns: dict[str, int] = {}
-    for descriptor in opt_objs(data, descriptors_key):
-        index = opt_int(descriptor, index_key)
-        name = opt_str(descriptor, name_key)
+    for descriptor in opt_objs(data, descriptors_field):
+        index = opt_int(descriptor, index_field)
+        name = opt_str(descriptor, name_field)
         if index is not None and name is not None:
             columns[name] = index
-    rows = data.get(rows_key)
+    rows = data.get(rows_field)
     time_col = columns.get("timestamp")
-    value_col = columns.get(value_name)
+    value_col = columns.get(value_field)
     if not isinstance(rows, list) or time_col is None or value_col is None:
         return []
     points: list[tuple[datetime, float]] = []
