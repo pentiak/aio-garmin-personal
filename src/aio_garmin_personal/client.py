@@ -13,10 +13,22 @@ import aiohttp
 from .auth import TokenProvider, parse_retry_after
 from .const import (
     ACTIVITIES_PATH,
+    BODY_BATTERY_PATH,
+    DAILY_HYDRATION_PATH,
+    DAILY_OVERVIEWS_PATH,
+    DAILY_STEPS_PATH,
+    DAILY_STRESS_PATH,
     DAILY_SUMMARY_PATH,
     DEFAULT_BASE_URL,
     DEFAULT_REQUEST_TIMEOUT,
+    HEART_RATE_PATH,
+    HRV_PATH,
+    HRV_RANGE_PATH,
+    SLEEP_PATH,
+    SLEEP_RANGE_PATH,
+    SPO2_PATH,
     USER_SETTINGS_PATH,
+    WELLNESS_ACTIVITIES_PATH,
 )
 from .exceptions import (
     GarminPersonalAuthenticationError,
@@ -25,6 +37,19 @@ from .exceptions import (
     GarminPersonalResponseError,
 )
 from .models import Activity, DailySummary, UserSettings
+from .wellness import (
+    BodyBatteryDay,
+    DailyHydration,
+    DailyOverview,
+    DailySteps,
+    DailyStress,
+    HeartRateDay,
+    HrvDay,
+    HrvSummary,
+    Sleep,
+    SpO2Day,
+    WellnessActivity,
+)
 
 
 class GarminPersonalClient:
@@ -100,13 +125,208 @@ class GarminPersonalClient:
         )
         if body is None:
             return []
-        if not isinstance(body, list) or not all(
-            isinstance(item, Mapping) for item in body
-        ):
-            raise GarminPersonalResponseError(
-                "Activities response is not an array of objects"
-            )
-        return [Activity.from_dict(item) for item in body]
+        return [
+            Activity.from_dict(item) for item in _array_of_objects(body, "Activities")
+        ]
+
+    async def async_get_sleep(self, calendar_date: date) -> Sleep | None:
+        """Return the night that ended on `calendar_date`, or `None` if none was recorded."""
+        body = await self._async_get_object(
+            SLEEP_PATH, "Sleep", params={"date": calendar_date.isoformat()}
+        )
+        # A day without sleep is an object with every field null, the date included.
+        if body is None or body.get("calendarDate") is None:
+            return None
+        return Sleep.from_dict(body)
+
+    async def async_get_sleep_range(self, start: date, end: date) -> list[Sleep]:
+        """Return the nights that ended from `start` to `end`, both included.
+
+        Garmin accepts at most 32 days per request.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        items = await self._async_get_array(
+            SLEEP_RANGE_PATH,
+            "Sleep summaries",
+            params={"startDate": start.isoformat(), "endDate": end.isoformat()},
+        )
+        return [Sleep.from_dict(item) for item in items]
+
+    async def async_get_hrv(self, calendar_date: date) -> HrvDay | None:
+        """Return the night's HRV readings and summary, or `None` without HRV data."""
+        body = await self._async_get_object(
+            HRV_PATH.format(day=calendar_date.isoformat()), "HRV"
+        )
+        return None if body is None else HrvDay.from_dict(body)
+
+    async def async_get_hrv_summaries(self, start: date, end: date) -> list[HrvSummary]:
+        """Return the HRV summary of each day from `start` to `end` that has one.
+
+        Garmin accepts at most 367 days per request.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        body = await self._async_get_object(
+            HRV_RANGE_PATH.format(start=start.isoformat(), end=end.isoformat()),
+            "HRV summaries",
+        )
+        if body is None:
+            return []
+        return [
+            HrvSummary.from_dict(item)
+            for item in _array_of_objects(body.get("hrvSummaries"), "HRV summaries")
+        ]
+
+    async def async_get_heart_rate(self, calendar_date: date) -> HeartRateDay | None:
+        """Return the day's heart rate readings and resting rate.
+
+        A day without data still returns a `HeartRateDay`, with every field `None`.
+        `None` is returned only for an empty body.
+        """
+        body = await self._async_get_object(
+            HEART_RATE_PATH, "Heart rate", params={"date": calendar_date.isoformat()}
+        )
+        return None if body is None else HeartRateDay.from_dict(body)
+
+    async def async_get_body_battery(
+        self, start: date, end: date
+    ) -> list[BodyBatteryDay]:
+        """Return the Body Battery levels and events of each day from `start` to `end`.
+
+        Garmin accepts at most 31 days per request.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        items = await self._async_get_array(
+            BODY_BATTERY_PATH,
+            "Body Battery reports",
+            params={"startDate": start.isoformat(), "endDate": end.isoformat()},
+        )
+        return [BodyBatteryDay.from_dict(item) for item in items]
+
+    async def async_get_spo2(self, calendar_date: date) -> SpO2Day | None:
+        """Return the day's blood oxygen readings.
+
+        A day without data still returns an `SpO2Day`, with every field `None`. `None` is
+        returned only for an empty body.
+        """
+        body = await self._async_get_object(
+            SPO2_PATH.format(day=calendar_date.isoformat()), "SpO2"
+        )
+        return None if body is None else SpO2Day.from_dict(body)
+
+    async def async_get_daily_steps(self, start: date, end: date) -> list[DailySteps]:
+        """Return the step totals of each day from `start` to `end`.
+
+        Garmin accepts at most 28 days per request.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        items = await self._async_get_array(
+            DAILY_STEPS_PATH.format(start=start.isoformat(), end=end.isoformat()),
+            "Daily steps",
+        )
+        return [DailySteps.from_dict(item) for item in items]
+
+    async def async_get_daily_stress(self, start: date, end: date) -> list[DailyStress]:
+        """Return the stress level and durations of each day from `start` to `end`.
+
+        Garmin accepts at most 28 days per request.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        items = await self._async_get_array(
+            DAILY_STRESS_PATH.format(start=start.isoformat(), end=end.isoformat()),
+            "Daily stress",
+        )
+        return [DailyStress.from_dict(item) for item in items]
+
+    async def async_get_daily_hydration(
+        self, start: date, end: date
+    ) -> list[DailyHydration]:
+        """Return the logged hydration of each day from `start` to `end` that has any.
+
+        Garmin accepts at most 31 days per request.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        items = await self._async_get_array(
+            DAILY_HYDRATION_PATH.format(start=start.isoformat(), end=end.isoformat()),
+            "Daily hydration",
+        )
+        return [DailyHydration.from_dict(item) for item in items]
+
+    async def async_get_daily_overviews(
+        self, start: date, end: date
+    ) -> list[DailyOverview]:
+        """Return the wellness totals of each day from `start` to `end`.
+
+        Garmin rejects ranges longer than about a year, and has answered HTTP 500 for
+        ranges of several months; ask for a few months at a time.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        body = await self._async_get_object(
+            DAILY_OVERVIEWS_PATH,
+            "Daily overviews",
+            params={"startDate": start.isoformat(), "endDate": end.isoformat()},
+        )
+        if body is None:
+            return []
+        return [
+            DailyOverview.from_dict(item)
+            for item in _array_of_objects(body.get("data"), "Daily overviews")
+        ]
+
+    async def async_get_wellness_activities(
+        self, start: date, end: date
+    ) -> list[WellnessActivity]:
+        """Return the wellness sessions, such as breathwork, from `start` to `end`.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        items = await self._async_get_array(
+            WELLNESS_ACTIVITIES_PATH.format(
+                start=start.isoformat(), end=end.isoformat()
+            ),
+            "Wellness activities",
+        )
+        return [WellnessActivity.from_dict(item) for item in items]
+
+    async def _async_get_object(
+        self, path: str, what: str, params: Mapping[str, str] | None = None
+    ) -> Mapping[str, Any] | None:
+        body = await self._async_get_json(path, params)
+        if body is None:
+            return None
+        if not isinstance(body, Mapping):
+            raise GarminPersonalResponseError(f"{what} response is not an object")
+        return body
+
+    async def _async_get_array(
+        self, path: str, what: str, params: Mapping[str, str] | None = None
+    ) -> list[Mapping[str, Any]]:
+        body = await self._async_get_json(path, params)
+        if body is None:
+            return []
+        return _array_of_objects(body, what)
 
     async def _async_get_json(
         self, path: str, params: Mapping[str, str] | None = None
@@ -163,3 +383,16 @@ class GarminPersonalClient:
                 )
         except (TimeoutError, aiohttp.ClientError) as err:
             raise GarminPersonalConnectionError(f"GET {path} failed: {err}") from err
+
+
+def _check_range(start: date, end: date) -> None:
+    if start > end:
+        raise ValueError("start must not be after end")
+
+
+def _array_of_objects(body: Any, what: str) -> list[Mapping[str, Any]]:
+    if not isinstance(body, list) or not all(
+        isinstance(item, Mapping) for item in body
+    ):
+        raise GarminPersonalResponseError(f"{what} response is not an array of objects")
+    return body

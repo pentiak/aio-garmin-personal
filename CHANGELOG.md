@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Sleep: `async_get_sleep()` for one night and `async_get_sleep_range()` for up to 32, with
+  stage durations, the sleep score and Garmin's sleep need.
+- Heart rate variability: `async_get_hrv()` with the night's readings, and
+  `async_get_hrv_summaries()` for up to 367 days.
+- `async_get_heart_rate()`: the day's readings and resting heart rate.
+- `async_get_spo2()`: blood oxygen averages and hourly values.
+- `async_get_body_battery()`: levels and the events that charged or drained them, for up to
+  31 days.
+- Daily statistics for a range of days: `async_get_daily_steps()` and
+  `async_get_daily_stress()` (up to 28 days), `async_get_daily_hydration()` (up to 31 days),
+  and `async_get_daily_overviews()`, the daily totals of `/usersummary-service/v2/dailysummaries`.
+- `async_get_wellness_activities()`: sessions such as breathwork that are not in the activity
+  list.
+
+Range methods raise `ValueError` when `start` is after `end`. Longer ranges than Garmin accepts
+raise `GarminPersonalResponseError` with HTTP status 400.
+
 ## 0.2.1 - 2026-10-27
 
 ### Fixed

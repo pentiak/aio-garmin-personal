@@ -1,0 +1,11 @@
+[
+  {
+    "userId": 123456789,
+    "calendarDate": "2026-10-22",
+    "valueInML": 1750.0,
+    "goalInML": 2500.0,
+    "lastEntryTimestampLocal": "2026-10-22T19:10:00.0",
+    "sweatLossInML": 420.0,
+    "activityIntakeInML": 500.0
+  }
+]
