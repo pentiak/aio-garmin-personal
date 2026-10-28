@@ -28,6 +28,9 @@
   speed, elevation, training effect and load), shared with `ActivityDetails` as
   `ActivityStats`.
 - `async_get_activities()` takes `start_date`, `end_date` and `activity_type` filters.
+- `async_get_nutrition()`: the day's logged food by meal, with totals and goals, and
+  `async_get_menstrual_cycle()` and `async_get_menstrual_cycle_day()`. All three are typed from
+  Garmin's API description.
 
 Range methods raise `ValueError` when `start` is after `end`. Longer ranges than Garmin accepts
 raise `GarminPersonalResponseError` with HTTP status 400.

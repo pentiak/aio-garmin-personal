@@ -23,6 +23,16 @@ from .exceptions import (
     GarminPersonalResponseError,
 )
 from .models import Activity, ActivityStats, DailySummary, UserSettings
+from .nutrition import (
+    DailyNutrition,
+    LoggedFood,
+    Meal,
+    MenstrualCycle,
+    MenstrualCycleDay,
+    MenstrualCycleDayLog,
+    NutritionGoals,
+    NutritionTotals,
+)
 from .wellness import (
     BodyBatteryEvent,
     BodyBatterySample,
@@ -55,6 +65,7 @@ __all__ = [
     "DailyHeartRate",
     "DailyHrv",
     "DailyHydration",
+    "DailyNutrition",
     "DailyOverview",
     "DailySleep",
     "DailySpO2",
@@ -74,6 +85,13 @@ __all__ = [
     "HeartRateZones",
     "HrvReading",
     "HrvSummary",
+    "LoggedFood",
+    "Meal",
+    "MenstrualCycle",
+    "MenstrualCycleDay",
+    "MenstrualCycleDayLog",
+    "NutritionGoals",
+    "NutritionTotals",
     "SpO2Sample",
     "TokenProvider",
     "UserSettings",
