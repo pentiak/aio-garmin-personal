@@ -40,7 +40,7 @@ def load_fixture(name: str) -> str:
 @dataclass
 class Reply:
     status: int = 200
-    body: str = ""
+    body: str | bytes = ""
     headers: dict[str, str] = field(default_factory=dict)
     delay: float = 0.0
 
@@ -82,6 +82,10 @@ class FakeGarmin:
         reply = queue.pop(0) if len(queue) > 1 else queue[0]
         if reply.delay:
             await asyncio.sleep(reply.delay)
+        if isinstance(reply.body, bytes):
+            return web.Response(
+                status=reply.status, body=reply.body, headers=reply.headers
+            )
         return web.Response(status=reply.status, text=reply.body, headers=reply.headers)
 
 

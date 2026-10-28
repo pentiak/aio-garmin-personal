@@ -1,0 +1,74 @@
+{
+  "activityId": 10000000001,
+  "activityUUID": {
+    "uuid": "00000000-0000-4000-8000-000000000003"
+  },
+  "activityName": "Morning Run",
+  "userProfileId": 123456789,
+  "isMultiSportParent": false,
+  "activityTypeDTO": {
+    "typeId": 1,
+    "typeKey": "running",
+    "parentTypeId": 17
+  },
+  "eventTypeDTO": {
+    "typeId": 9,
+    "typeKey": "uncategorized"
+  },
+  "accessControlRuleDTO": {
+    "typeId": 2,
+    "typeKey": "private"
+  },
+  "timeZoneUnitDTO": {
+    "timeZone": "Europe/Berlin"
+  },
+  "locationName": "Example Town",
+  "metadataDTO": {
+    "lapCount": 8,
+    "manualActivity": false,
+    "favorite": false,
+    "personalRecord": false,
+    "fileFormat": {
+      "formatId": 7,
+      "formatKey": "fit"
+    },
+    "sensors": [],
+    "childIds": []
+  },
+  "summaryDTO": {
+    "startTimeLocal": "2026-10-22T07:15:02.0",
+    "startTimeGMT": "2026-10-22T05:15:02.0",
+    "startLatitude": 0.0,
+    "startLongitude": 0.0,
+    "endLatitude": 0.0,
+    "endLongitude": 0.0,
+    "distance": 8012.4,
+    "duration": 2701.3,
+    "movingDuration": 2690.0,
+    "elapsedDuration": 2750.5,
+    "elevationGain": 54.0,
+    "elevationLoss": 52.0,
+    "averageSpeed": 2.966,
+    "maxSpeed": 3.9,
+    "calories": 610.0,
+    "averageHR": 148.0,
+    "maxHR": 171.0,
+    "minHR": 95.0,
+    "steps": 7400,
+    "averagePower": 265.0,
+    "trainingEffect": 3.2,
+    "anaerobicTrainingEffect": 0.8,
+    "activityTrainingLoad": 112.5,
+    "moderateIntensityMinutes": 10,
+    "vigorousIntensityMinutes": 33,
+    "recoveryHeartRate": 120
+  },
+  "splitSummaries": [
+    {
+      "splitType": "INTERVAL_ACTIVE",
+      "noOfSplits": 1,
+      "distance": 8012.4,
+      "duration": 2701.3
+    }
+  ]
+}

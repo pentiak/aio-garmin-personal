@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any
 
-from ._parse import opt_float, opt_gmt_datetime, opt_int, opt_str
+from ._parse import opt_float, opt_gmt_datetime, opt_int, opt_obj, opt_str
 from .exceptions import GarminPersonalResponseError
 
 
@@ -36,11 +36,79 @@ class UserSettings:
 
 
 @dataclass(frozen=True, kw_only=True)
-class Activity:
+class ActivityStats:
+    """The measured totals of an activity, shared by `Activity` and `ActivityDetails`.
+
+    Durations are in seconds, distances and elevations in metres, speeds in metres per
+    second, calories in kilocalories and heart rates in beats per minute. A metric the
+    activity did not record is `None`.
+    """
+
+    activity_type: str | None
+    duration_seconds: float | None
+    moving_duration_seconds: float | None
+    elapsed_duration_seconds: float | None
+    distance_meters: float | None
+    calories: float | None
+    average_heart_rate: float | None
+    max_heart_rate: float | None
+    average_speed: float | None
+    max_speed: float | None
+    elevation_gain_meters: float | None
+    elevation_loss_meters: float | None
+    steps: int | None
+    average_power: float | None
+    aerobic_training_effect: float | None
+    anaerobic_training_effect: float | None
+    training_load: float | None
+    moderate_intensity_minutes: int | None
+    vigorous_intensity_minutes: int | None
+
+
+def activity_stats(
+    totals: Mapping[str, Any], activity_type: str | None, aerobic_key: str
+) -> dict[str, Any]:
+    """Read the `ActivityStats` fields from an object of activity totals."""
+    return {
+        "activity_type": activity_type,
+        "duration_seconds": opt_float(totals, "duration"),
+        "moving_duration_seconds": opt_float(totals, "movingDuration"),
+        "elapsed_duration_seconds": opt_float(totals, "elapsedDuration"),
+        "distance_meters": opt_float(totals, "distance"),
+        "calories": opt_float(totals, "calories"),
+        "average_heart_rate": opt_float(totals, "averageHR"),
+        "max_heart_rate": opt_float(totals, "maxHR"),
+        "average_speed": opt_float(totals, "averageSpeed"),
+        "max_speed": opt_float(totals, "maxSpeed"),
+        "elevation_gain_meters": opt_float(totals, "elevationGain"),
+        "elevation_loss_meters": opt_float(totals, "elevationLoss"),
+        "steps": opt_int(totals, "steps"),
+        "average_power": opt_float(totals, "averagePower")
+        if "averagePower" in totals
+        else opt_float(totals, "avgPower"),
+        "aerobic_training_effect": opt_float(totals, aerobic_key),
+        "anaerobic_training_effect": opt_float(totals, "anaerobicTrainingEffect"),
+        "training_load": opt_float(totals, "activityTrainingLoad"),
+        "moderate_intensity_minutes": opt_int(totals, "moderateIntensityMinutes"),
+        "vigorous_intensity_minutes": opt_int(totals, "vigorousIntensityMinutes"),
+    }
+
+
+def require_activity_id(data: Mapping[str, Any]) -> int:
+    """Return `activityId`, which identifies the activity in every activity response."""
+    activity_id = data.get("activityId")
+    if isinstance(activity_id, bool) or not isinstance(activity_id, int):
+        raise GarminPersonalResponseError("Activity has no activityId")
+    return activity_id
+
+
+@dataclass(frozen=True, kw_only=True)
+class Activity(ActivityStats):
     """One recorded activity from `/activitylist-service/activities/search/activities`.
 
-    `owner_full_name` is the account holder's name as entered in Garmin Connect; it may be
-    missing.
+    `activity_type` is Garmin's type key, such as `running`. `owner_full_name` is the
+    account holder's name as entered in Garmin Connect; it may be missing. The start and
+    end coordinates are only in `raw`; treat them as location data.
     """
 
     activity_id: int
@@ -57,16 +125,18 @@ class Activity:
         Raises:
             GarminPersonalResponseError: `activityId` is missing or not an integer.
         """
-        activity_id = data.get("activityId")
-        if isinstance(activity_id, bool) or not isinstance(activity_id, int):
-            raise GarminPersonalResponseError("Activity has no activityId")
         return cls(
-            activity_id=activity_id,
+            activity_id=require_activity_id(data),
             activity_name=opt_str(data, "activityName"),
             start_time_gmt=opt_gmt_datetime(data, "startTimeGMT"),
             owner_display_name=opt_str(data, "ownerDisplayName"),
             owner_full_name=opt_str(data, "ownerFullName"),
             raw=data,
+            **activity_stats(
+                data,
+                opt_str(opt_obj(data, "activityType"), "typeKey"),
+                "aerobicTrainingEffect",
+            ),
         )
 
 

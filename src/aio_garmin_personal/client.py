@@ -10,10 +10,14 @@ from typing import Any
 
 import aiohttp
 
+from .activities import ActivityDetails, ActivityWorkout
 from .auth import TokenProvider, parse_retry_after
 from .body import FitnessAge, HeartRateZones, WeightGoals, WeightRange
 from .const import (
     ACTIVITIES_PATH,
+    ACTIVITY_FILE_PATH,
+    ACTIVITY_PATH,
+    ACTIVITY_WORKOUTS_PATH,
     BODY_BATTERY_PATH,
     DAILY_HYDRATION_PATH,
     DAILY_OVERVIEWS_PATH,
@@ -113,27 +117,76 @@ class GarminPersonalClient:
         return DailySummary.from_dict(body)
 
     async def async_get_activities(
-        self, *, limit: int = 20, start: int = 0
+        self,
+        *,
+        limit: int = 20,
+        start: int = 0,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        activity_type: str | None = None,
     ) -> list[Activity]:
         """Return the account's activities, most recent first.
 
         `start` is the zero-based offset of the first activity and `limit` the most to
-        return. An account without activities gives an empty list. Garmin has answered
-        HTTP 500 for limits from about 170 up; page with 100 or fewer.
+        return. Garmin has answered HTTP 500 for limits from about 170 up; page with 100
+        or fewer. `start_date` and `end_date` limit the activities to those that started on
+        those local days, both included. `activity_type` is Garmin's type key, such as
+        `running`; Garmin may include related types, so check `Activity.activity_type`.
+        An unknown type raises `GarminPersonalResponseError` with status 400. An account
+        without matching activities gives an empty list.
 
         Raises:
-            ValueError: `limit` is below 1 or `start` below 0.
+            ValueError: `limit` is below 1, `start` below 0, or `start_date` after
+                `end_date`.
         """
         if limit < 1 or start < 0:
             raise ValueError("limit must be at least 1 and start at least 0")
-        body = await self._async_get_json(
-            ACTIVITIES_PATH, params={"start": str(start), "limit": str(limit)}
+        params = {"start": str(start), "limit": str(limit)}
+        if start_date is not None and end_date is not None:
+            _check_range(start_date, end_date)
+        if start_date is not None:
+            params["startDate"] = start_date.isoformat()
+        if end_date is not None:
+            params["endDate"] = end_date.isoformat()
+        if activity_type is not None:
+            params["activityType"] = activity_type
+        items = await self._async_get_array(
+            ACTIVITIES_PATH, "Activities", params=params
         )
+        return [Activity.from_dict(item) for item in items]
+
+    async def async_get_activity(self, activity_id: int) -> ActivityDetails | None:
+        """Return one activity's summary, or `None` for an empty body.
+
+        An unknown `activity_id` raises `GarminPersonalResponseError` with status 404.
+        """
+        body = await self._async_get_object(
+            ACTIVITY_PATH.format(activity_id=activity_id), "Activity"
+        )
+        return None if body is None else ActivityDetails.from_dict(body)
+
+    async def async_get_activity_workouts(
+        self, activity_id: int
+    ) -> list[ActivityWorkout]:
+        """Return the planned workouts the activity followed; usually none or one."""
+        items = await self._async_get_array(
+            ACTIVITY_WORKOUTS_PATH.format(activity_id=activity_id), "Activity workouts"
+        )
+        return [ActivityWorkout.from_dict(item) for item in items]
+
+    async def async_download_activity(self, activity_id: int) -> bytes:
+        """Return the activity's original file as a ZIP archive.
+
+        The archive holds the file the device uploaded, usually a FIT file. It includes
+        the recorded track, so it is location data. An unknown `activity_id` raises
+        `GarminPersonalResponseError` with status 404.
+        """
+        path = ACTIVITY_FILE_PATH.format(activity_id=activity_id)
+        # Garmin answers 406 to Accept: application/octet-stream.
+        body = await self._async_get_body(path, None, accept="*/*")
         if body is None:
-            return []
-        return [
-            Activity.from_dict(item) for item in _array_of_objects(body, "Activities")
-        ]
+            raise GarminPersonalResponseError(f"GET {path} returned no file")
+        return body
 
     async def async_get_sleep(self, calendar_date: date) -> DailySleep | None:
         """Return the night that ended on `calendar_date`, or `None` if none was recorded."""
@@ -385,14 +438,30 @@ class GarminPersonalClient:
     async def _async_get_json(
         self, path: str, params: Mapping[str, str] | None = None
     ) -> Any:
-        """GET a path and decode its JSON body; `None` for an empty body.
+        """GET a path and decode its JSON body; `None` for an empty body."""
+        body = await self._async_get_body(path, params, accept="application/json")
+        if body is None:
+            return None
+        try:
+            return json.loads(body)
+        except ValueError as err:
+            raise GarminPersonalResponseError(
+                f"GET {path} returned invalid JSON"
+            ) from err
+
+    async def _async_get_body(
+        self, path: str, params: Mapping[str, str] | None, *, accept: str
+    ) -> bytes | None:
+        """GET a path and return its body; `None` for an empty body.
 
         A 401 with a cached token is retried once with a fresh token, because Garmin
         invalidates tokens when the key is deleted or regenerated.
         """
         for attempt in range(2):
             token = await self._tokens.async_get_token()
-            status, body, retry_after = await self._async_get(path, params, token)
+            status, body, retry_after = await self._async_get(
+                path, params, token, accept
+            )
             if status == HTTPStatus.UNAUTHORIZED:
                 self._tokens.invalidate()
                 if attempt == 0:
@@ -410,29 +479,21 @@ class GarminPersonalClient:
             raise GarminPersonalResponseError(
                 f"GET {path} returned HTTP {status}", status
             )
-        try:
-            return json.loads(body)
-        except ValueError as err:
-            raise GarminPersonalResponseError(
-                f"GET {path} returned invalid JSON"
-            ) from err
+        return body
 
     async def _async_get(
-        self, path: str, params: Mapping[str, str] | None, token: str
-    ) -> tuple[int, str, str | None]:
+        self, path: str, params: Mapping[str, str] | None, token: str, accept: str
+    ) -> tuple[int, bytes, str | None]:
         try:
             async with self._session.get(
                 f"{self._base_url}{path}",
                 params=params,
-                headers={
-                    "Accept": "application/json",
-                    "Authorization": f"Bearer {token}",
-                },
+                headers={"Accept": accept, "Authorization": f"Bearer {token}"},
                 timeout=self._timeout,
             ) as response:
                 return (
                     response.status,
-                    await response.text(),
+                    await response.read(),
                     response.headers.get("Retry-After"),
                 )
         except (TimeoutError, aiohttp.ClientError) as err:
