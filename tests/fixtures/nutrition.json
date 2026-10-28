@@ -1,0 +1,78 @@
+{
+  "mealDate": "2026-10-22",
+  "dayStartTime": "00:00",
+  "dayEndTime": "23:59",
+  "dailyNutritionContent": {
+    "calories": 1450,
+    "caloriesPercentage": 0.55,
+    "carbs": 160.0,
+    "protein": 80.0,
+    "fat": 50.0
+  },
+  "dailyNutritionGoals": {
+    "calories": 2200,
+    "adjustedCalories": 2650,
+    "carbs": 250.0,
+    "protein": 120.0,
+    "fat": 75.0,
+    "adjustedCarbs": 300.0,
+    "adjustedProtein": 130.0,
+    "adjustedFat": 85.0
+  },
+  "mealDetails": [
+    {
+      "meal": {
+        "mealId": 1,
+        "mealName": "Breakfast",
+        "defaultMealName": "BREAKFAST",
+        "mealIndex": 0,
+        "displayOrder": 0,
+        "startTime": "05:00",
+        "endTime": "10:59",
+        "translated": true
+      },
+      "mealNutritionContent": {
+        "calories": 270,
+        "carbs": 45.0,
+        "protein": 9.0,
+        "fat": 6.0
+      },
+      "mealNutritionGoals": {
+        "calories": 550,
+        "carbs": 62.0,
+        "protein": 30.0,
+        "fat": 19.0
+      },
+      "loggedFoods": [
+        {
+          "logId": "00000000-0000-4000-8000-000000000004",
+          "mealId": 1,
+          "type": "FOOD",
+          "servingQty": 1.5,
+          "logCategory": "REGULAR_LOG",
+          "logSource": "USER",
+          "isFavorite": false,
+          "foodInactive": false,
+          "logTimestamp": "2026-10-22T06:30:00.0",
+          "mealTime": "08:00:00",
+          "foodMetaData": {
+            "foodId": "f-1",
+            "foodName": "Porridge",
+            "brandName": "Example Oats",
+            "foodType": "GENERIC"
+          },
+          "nutritionContent": {
+            "calories": 270,
+            "carbs": 45.0,
+            "protein": 9.0,
+            "fat": 6.0,
+            "fiber": 6.5,
+            "servingUnit": "g",
+            "numberOfUnits": 60.0
+          }
+        }
+      ]
+    }
+  ],
+  "loggedFoodsWithServingSizes": []
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "index": 0,
+    "manufacturer": "GARMIN",
+    "sport": "RUNNING",
+    "workoutName": "Intervals",
+    "timeCreated": "2026-10-21T18:00:00.0",
+    "workoutPhrase": null,
+    "multisportSet": null,
+    "steps": [
+      {
+        "stepIndex": 0,
+        "name": null,
+        "intensity": "WARMUP",
+        "durationType": "TIME",
+        "durationValue": 600.0,
+        "targetType": "OPEN",
+        "targetValue": 0.0,
+        "targetValueLow": null,
+        "targetValueHigh": null,
+        "notes": null,
+        "equipmentType": null,
+        "exerciseCategory": null,
+        "exerciseName": null,
+        "exerciseWeightValue": null,
+        "weightDisplayUnit": null
+      },
+      {
+        "stepIndex": 1,
+        "name": null,
+        "intensity": "ACTIVE",
+        "durationType": "DISTANCE",
+        "durationValue": 1000.0,
+        "targetType": "SPEED",
+        "targetValue": 0.0,
+        "targetValueLow": 3.3,
+        "targetValueHigh": 3.6,
+        "notes": "Steady",
+        "equipmentType": null,
+        "exerciseCategory": null,
+        "exerciseName": null,
+        "exerciseWeightValue": null,
+        "weightDisplayUnit": null
+      },
+      {
+        "stepIndex": 2,
+        "name": null,
+        "intensity": null,
+        "durationType": "REPEAT_UNTIL_STEPS_CMPLT",
+        "durationValue": 1.0,
+        "targetType": null,
+        "targetValue": 4.0,
+        "targetValueLow": null,
+        "targetValueHigh": null,
+        "notes": null,
+        "equipmentType": null,
+        "exerciseCategory": null,
+        "exerciseName": null,
+        "exerciseWeightValue": null,
+        "weightDisplayUnit": null
+      }
+    ]
+  }
+]

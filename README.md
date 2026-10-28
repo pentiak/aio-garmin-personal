@@ -81,11 +81,24 @@ All of them derive from `GarminPersonalError`.
 | `async_get_weight_goals(start, end)` | `GET /goal-service/goal/user/effective/weightgoal/{start}/{end}` | |
 | `async_get_fitness_age(day)` | `GET /fitnessage-service/fitnessage/v2/{day}` | |
 | `async_get_heart_rate_zones()` | `GET /biometric-service/heartRateZones/v2` | |
-| `async_get_activities(limit=, start=)` | `GET /activitylist-service/activities/search/activities` | |
+| `async_get_nutrition(day)` | `GET /nutrition-service/food/logs/{day}` | |
+| `async_get_menstrual_cycle(day)` | `GET /periodichealth-service/menstrualcycle/summary/{day}` | |
+| `async_get_menstrual_cycle_day(day)` | `GET /periodichealth-service/menstrualcycle/dayview/{day}` | |
+| `async_get_activities(limit=, start=, start_date=, end_date=, activity_type=)` | `GET /activitylist-service/activities/search/activities` | |
+| `async_get_activity(activity_id)` | `GET /activity-service/activity/{activity_id}` | |
+| `async_get_activity_workouts(activity_id)` | `GET /activity-service/activity/{activity_id}/workouts` | |
+| `async_download_activity(activity_id)` | `GET /download-service/files/activity/{activity_id}` | |
 
 Ranges include both ends. A range longer than Garmin accepts raises
 `GarminPersonalResponseError` with status 400; the limits are Garmin's and may change. Each
 returned object types the commonly used fields and keeps the whole response in `raw`.
+
+Hydration, weight goals, nutrition and the menstrual cycle are typed from Garmin's API
+description and have not yet been checked against an account that records them. Reports of
+mismatches are welcome.
+
+`/weight-service/weight/all/{start}/{end}` is not supported: it answered HTTP 400 to every
+request tried. `async_get_weight()` returns the same entries.
 
 ## Development
 

@@ -1,0 +1,45 @@
+{
+  "daySummary": {
+    "startDate": {
+      "date": "2026-10-09T22:00:00.0",
+      "localDate": "2026-10-10"
+    },
+    "endDate": null,
+    "cycleType": "REGULAR",
+    "dayInCycle": 13,
+    "currentPhase": 2,
+    "lengthOfCurrentPhase": 9,
+    "daysUntilNextPhase": 2,
+    "periodLength": 5,
+    "predictedCycleLength": 29,
+    "predictedOvulationDate": {
+      "date": "2026-10-23T22:00:00.0",
+      "localDate": "2026-10-24"
+    },
+    "predictedCycle": false,
+    "pregnancyCycle": false,
+    "fertileWindowStart": 10,
+    "lengthOfFertileWindow": 6
+  },
+  "dayLog": {
+    "userProfilePk": 123456789,
+    "calendarDate": {
+      "date": "2026-10-21T22:00:00.0",
+      "localDate": "2026-10-22"
+    },
+    "flow": "NONE",
+    "symptoms": [
+      "HEADACHE",
+      7
+    ],
+    "moods": [
+      "CALM"
+    ],
+    "discharge": [],
+    "ovulationDay": false,
+    "notes": "made-up note",
+    "hasBabyMovement": false,
+    "hasGlucoseLog": false
+  },
+  "weightGoals": null
+}

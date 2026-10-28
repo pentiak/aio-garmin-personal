@@ -1,0 +1,16 @@
+{
+  "startDate": "2026-10-10",
+  "endDate": null,
+  "cycleType": "REGULAR",
+  "dayInCycle": 13,
+  "currentPhase": 2,
+  "lengthOfCurrentPhase": 9,
+  "daysUntilNextPhase": 2,
+  "periodLength": 5,
+  "predictedCycleLength": 29,
+  "predictedOvulationDate": "2026-10-24",
+  "predictedCycle": false,
+  "pregnancyCycle": false,
+  "fertileWindowStart": 10,
+  "lengthOfFertileWindow": 6
+}

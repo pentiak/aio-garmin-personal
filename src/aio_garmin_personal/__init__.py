@@ -1,5 +1,6 @@
 """Asynchronous client for the Garmin Connect Personal API."""
 
+from .activities import ActivityDetails, ActivityWorkout, WorkoutStep
 from .auth import AccessToken, TokenProvider
 from .body import (
     DailyWeight,
@@ -21,7 +22,17 @@ from .exceptions import (
     GarminPersonalRateLimitError,
     GarminPersonalResponseError,
 )
-from .models import Activity, DailySummary, UserSettings
+from .models import Activity, ActivityStats, DailySummary, UserSettings
+from .nutrition import (
+    DailyNutrition,
+    LoggedFood,
+    Meal,
+    MenstrualCycle,
+    MenstrualCycleDay,
+    MenstrualCycleDayLog,
+    NutritionGoals,
+    NutritionTotals,
+)
 from .wellness import (
     BodyBatteryEvent,
     BodyBatterySample,
@@ -45,12 +56,16 @@ __all__ = [
     "DEFAULT_BASE_URL",
     "AccessToken",
     "Activity",
+    "ActivityDetails",
+    "ActivityStats",
+    "ActivityWorkout",
     "BodyBatteryEvent",
     "BodyBatterySample",
     "DailyBodyBattery",
     "DailyHeartRate",
     "DailyHrv",
     "DailyHydration",
+    "DailyNutrition",
     "DailyOverview",
     "DailySleep",
     "DailySpO2",
@@ -70,6 +85,13 @@ __all__ = [
     "HeartRateZones",
     "HrvReading",
     "HrvSummary",
+    "LoggedFood",
+    "Meal",
+    "MenstrualCycle",
+    "MenstrualCycleDay",
+    "MenstrualCycleDayLog",
+    "NutritionGoals",
+    "NutritionTotals",
     "SpO2Sample",
     "TokenProvider",
     "UserSettings",
@@ -79,4 +101,5 @@ __all__ = [
     "WeightGoals",
     "WeightRange",
     "WellnessActivity",
+    "WorkoutStep",
 ]
