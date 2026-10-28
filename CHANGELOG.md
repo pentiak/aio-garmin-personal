@@ -17,6 +17,10 @@
   and `async_get_daily_overviews()`, the daily totals of `/usersummary-service/v2/dailysummaries`.
 - `async_get_wellness_activities()`: sessions such as breathwork that are not in the activity
   list.
+- Weight: `async_get_weight()` with each day's latest entry, or every entry with
+  `include_all=True`, and the range's averages; weights are in grams.
+- `async_get_weight_goals()`, typed from Garmin's API description.
+- `async_get_fitness_age()` with its components, and `async_get_heart_rate_zones()` per sport.
 
 Range methods raise `ValueError` when `start` is after `end`. Longer ranges than Garmin accepts
 raise `GarminPersonalResponseError` with HTTP status 400.

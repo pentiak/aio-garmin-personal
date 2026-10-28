@@ -21,6 +21,10 @@ DAILY_STEPS_PATH: Final = "/usersummary-service/stats/steps/daily/{start}/{end}"
 DAILY_STRESS_PATH: Final = "/usersummary-service/stats/stress/daily/{start}/{end}"
 DAILY_HYDRATION_PATH: Final = "/usersummary-service/stats/hydration/daily/{start}/{end}"
 DAILY_OVERVIEWS_PATH: Final = "/usersummary-service/v2/dailysummaries"
+WEIGHT_PATH: Final = "/weight-service/weight/range/{start}/{end}"
+WEIGHT_GOALS_PATH: Final = "/goal-service/goal/user/effective/weightgoal/{start}/{end}"
+FITNESS_AGE_PATH: Final = "/fitnessage-service/fitnessage/v2/{day}"
+HEART_RATE_ZONES_PATH: Final = "/biometric-service/heartRateZones/v2"
 WELLNESS_ACTIVITIES_PATH: Final = (
     "/wellnessactivity-service/activity/summary/range/{start}/{end}"
 )

@@ -11,6 +11,7 @@ from typing import Any
 import aiohttp
 
 from .auth import TokenProvider, parse_retry_after
+from .body import FitnessAge, HeartRateZones, WeightGoals, WeightRange
 from .const import (
     ACTIVITIES_PATH,
     BODY_BATTERY_PATH,
@@ -21,13 +22,17 @@ from .const import (
     DAILY_SUMMARY_PATH,
     DEFAULT_BASE_URL,
     DEFAULT_REQUEST_TIMEOUT,
+    FITNESS_AGE_PATH,
     HEART_RATE_PATH,
+    HEART_RATE_ZONES_PATH,
     HRV_PATH,
     HRV_RANGE_PATH,
     SLEEP_PATH,
     SLEEP_RANGE_PATH,
     SPO2_PATH,
     USER_SETTINGS_PATH,
+    WEIGHT_GOALS_PATH,
+    WEIGHT_PATH,
     WELLNESS_ACTIVITIES_PATH,
 )
 from .exceptions import (
@@ -113,7 +118,8 @@ class GarminPersonalClient:
         """Return the account's activities, most recent first.
 
         `start` is the zero-based offset of the first activity and `limit` the most to
-        return. An account without activities gives an empty list.
+        return. An account without activities gives an empty list. Garmin has answered
+        HTTP 500 for limits from about 170 up; page with 100 or fewer.
 
         Raises:
             ValueError: `limit` is below 1 or `start` below 0.
@@ -314,6 +320,49 @@ class GarminPersonalClient:
             "Wellness activities",
         )
         return [WellnessActivity.from_dict(item) for item in items]
+
+    async def async_get_weight(
+        self, start: date, end: date, *, include_all: bool = False
+    ) -> WeightRange:
+        """Return the weight entries from `start` to `end`, and their averages.
+
+        Each day carries its latest entry; `include_all=True` adds every entry of the day.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        body = await self._async_get_object(
+            WEIGHT_PATH.format(start=start.isoformat(), end=end.isoformat()),
+            "Weight",
+            params={"includeAll": "true" if include_all else "false"},
+        )
+        return WeightRange.from_dict(body or {})
+
+    async def async_get_weight_goals(self, start: date, end: date) -> WeightGoals:
+        """Return the weight goals in effect at any time from `start` to `end`.
+
+        Raises:
+            ValueError: `start` is after `end`.
+        """
+        _check_range(start, end)
+        body = await self._async_get_object(
+            WEIGHT_GOALS_PATH.format(start=start.isoformat(), end=end.isoformat()),
+            "Weight goals",
+        )
+        return WeightGoals.from_dict(body or {})
+
+    async def async_get_fitness_age(self, calendar_date: date) -> FitnessAge | None:
+        """Return the latest fitness age as of `calendar_date`, or `None` for an empty body."""
+        body = await self._async_get_object(
+            FITNESS_AGE_PATH.format(day=calendar_date.isoformat()), "Fitness age"
+        )
+        return None if body is None else FitnessAge.from_dict(body)
+
+    async def async_get_heart_rate_zones(self) -> list[HeartRateZones]:
+        """Return the heart rate zones, one entry per sport that has its own."""
+        items = await self._async_get_array(HEART_RATE_ZONES_PATH, "Heart rate zones")
+        return [HeartRateZones.from_dict(item) for item in items]
 
     async def _async_get_object(
         self, path: str, what: str, params: Mapping[str, str] | None = None

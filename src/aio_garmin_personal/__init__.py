@@ -1,6 +1,17 @@
 """Asynchronous client for the Garmin Connect Personal API."""
 
 from .auth import AccessToken, TokenProvider
+from .body import (
+    DailyWeight,
+    FitnessAge,
+    FitnessAgeComponent,
+    HeartRateZones,
+    WeightEntry,
+    WeightGoal,
+    WeightGoalRange,
+    WeightGoals,
+    WeightRange,
+)
 from .client import GarminPersonalClient
 from .const import DEFAULT_BASE_URL
 from .exceptions import (
@@ -46,6 +57,9 @@ __all__ = [
     "DailySteps",
     "DailyStress",
     "DailySummary",
+    "DailyWeight",
+    "FitnessAge",
+    "FitnessAgeComponent",
     "GarminPersonalAuthenticationError",
     "GarminPersonalClient",
     "GarminPersonalConnectionError",
@@ -53,10 +67,16 @@ __all__ = [
     "GarminPersonalRateLimitError",
     "GarminPersonalResponseError",
     "HeartRateSample",
+    "HeartRateZones",
     "HrvReading",
     "HrvSummary",
     "SpO2Sample",
     "TokenProvider",
     "UserSettings",
+    "WeightEntry",
+    "WeightGoal",
+    "WeightGoalRange",
+    "WeightGoals",
+    "WeightRange",
     "WellnessActivity",
 ]
