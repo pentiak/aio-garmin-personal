@@ -1,0 +1,27 @@
+{
+  "userGoals": [
+    {
+      "userGoalCategory": "MANUAL",
+      "userGoalType": "WEIGHT_GRAMS",
+      "startDate": "2026-09-01",
+      "endDate": null,
+      "goalName": "weight",
+      "goalValue": 70000.0,
+      "updateDate": "2026-09-01T08:00:00.0",
+      "createDate": "2026-09-01T08:00:00.0",
+      "trackingPeriodType": "DAILY"
+    }
+  ],
+  "userGoalRanges": [
+    {
+      "userGoalCategory": "MANUAL",
+      "userGoalType": "WEIGHT_GRAMS",
+      "startDate": "2026-09-01",
+      "endDate": "2026-12-31",
+      "lowWeightGoalInGrams": 69000.0,
+      "highWeightGoalInGrams": 71000.0,
+      "weekNum": null,
+      "trackingPeriodType": "DAILY"
+    }
+  ]
+}

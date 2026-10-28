@@ -1,0 +1,28 @@
+[
+  {
+    "trainingMethod": "LACTATE_THRESHOLD",
+    "restingHeartRateUsed": 53,
+    "lactateThresholdHeartRateUsed": 168,
+    "zone1Floor": 109,
+    "zone2Floor": 136,
+    "zone3Floor": 150,
+    "zone4Floor": 162,
+    "zone5Floor": 170,
+    "maxHeartRateUsed": 188,
+    "restingHrAutoUpdateUsed": true,
+    "sport": "DEFAULT"
+  },
+  {
+    "trainingMethod": "LACTATE_THRESHOLD",
+    "restingHeartRateUsed": 53,
+    "lactateThresholdHeartRateUsed": 168,
+    "zone1Floor": 110,
+    "zone2Floor": 138,
+    "zone3Floor": 152,
+    "zone4Floor": 164,
+    "zone5Floor": null,
+    "maxHeartRateUsed": 188,
+    "restingHrAutoUpdateUsed": true,
+    "sport": "RUNNING"
+  }
+]

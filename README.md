@@ -77,6 +77,10 @@ All of them derive from `GarminPersonalError`.
 | `async_get_spo2(day)` | `GET /wellness-service/wellness/daily/spo2acclimation/{day}` | |
 | `async_get_body_battery(start, end)` | `GET /wellness-service/wellness/bodyBattery/reports/daily` | 31 days |
 | `async_get_wellness_activities(start, end)` | `GET /wellnessactivity-service/activity/summary/range/{start}/{end}` | |
+| `async_get_weight(start, end, include_all=)` | `GET /weight-service/weight/range/{start}/{end}` | |
+| `async_get_weight_goals(start, end)` | `GET /goal-service/goal/user/effective/weightgoal/{start}/{end}` | |
+| `async_get_fitness_age(day)` | `GET /fitnessage-service/fitnessage/v2/{day}` | |
+| `async_get_heart_rate_zones()` | `GET /biometric-service/heartRateZones/v2` | |
 | `async_get_activities(limit=, start=)` | `GET /activitylist-service/activities/search/activities` | |
 
 Ranges include both ends. A range longer than Garmin accepts raises
