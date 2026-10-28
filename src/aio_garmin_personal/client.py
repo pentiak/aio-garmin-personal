@@ -31,6 +31,9 @@ from .const import (
     HEART_RATE_ZONES_PATH,
     HRV_PATH,
     HRV_RANGE_PATH,
+    MENSTRUAL_CYCLE_DAY_PATH,
+    MENSTRUAL_CYCLE_PATH,
+    NUTRITION_PATH,
     SLEEP_PATH,
     SLEEP_RANGE_PATH,
     SPO2_PATH,
@@ -46,6 +49,7 @@ from .exceptions import (
     GarminPersonalResponseError,
 )
 from .models import Activity, DailySummary, UserSettings
+from .nutrition import DailyNutrition, MenstrualCycle, MenstrualCycleDay
 from .wellness import (
     DailyBodyBattery,
     DailyHeartRate,
@@ -416,6 +420,39 @@ class GarminPersonalClient:
         """Return the heart rate zones, one entry per sport that has its own."""
         items = await self._async_get_array(HEART_RATE_ZONES_PATH, "Heart rate zones")
         return [HeartRateZones.from_dict(item) for item in items]
+
+    async def async_get_nutrition(self, calendar_date: date) -> DailyNutrition | None:
+        """Return the day's logged food by meal, with totals and goals.
+
+        A day without logged food has no meals. `None` is returned only for an empty body.
+        """
+        body = await self._async_get_object(
+            NUTRITION_PATH.format(day=calendar_date.isoformat()), "Nutrition"
+        )
+        return None if body is None else DailyNutrition.from_dict(body)
+
+    async def async_get_menstrual_cycle(
+        self, calendar_date: date
+    ) -> MenstrualCycle | None:
+        """Return the cycle `calendar_date` belongs to, or `None` without cycle tracking."""
+        body = await self._async_get_object(
+            MENSTRUAL_CYCLE_PATH.format(day=calendar_date.isoformat()),
+            "Menstrual cycle",
+        )
+        return None if body is None else MenstrualCycle.from_dict(body)
+
+    async def async_get_menstrual_cycle_day(
+        self, calendar_date: date
+    ) -> MenstrualCycleDay | None:
+        """Return the cycle and what was logged on `calendar_date`.
+
+        `None` without cycle tracking.
+        """
+        body = await self._async_get_object(
+            MENSTRUAL_CYCLE_DAY_PATH.format(day=calendar_date.isoformat()),
+            "Menstrual cycle day",
+        )
+        return None if body is None else MenstrualCycleDay.from_dict(body)
 
     async def _async_get_object(
         self, path: str, what: str, params: Mapping[str, str] | None = None

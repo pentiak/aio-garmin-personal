@@ -50,6 +50,25 @@ def opt_date(data: Mapping[str, Any], key: str) -> date | None:
         return None
 
 
+def opt_connect_date(data: Mapping[str, Any], key: str) -> date | None:
+    """Read a date sent as a string or, as Garmin's API description has it, an object.
+
+    The object form holds the account-local day in `localDate`. Real responses checked so
+    far send plain strings where the description promises the object.
+    """
+    value = data.get(key)
+    if isinstance(value, Mapping):
+        return opt_date(value, "localDate")
+    return opt_date(data, key)
+
+
+def opt_str_list(data: Mapping[str, Any], key: str) -> list[str]:
+    value = data.get(key)
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, str)]
+
+
 def req_date(data: Mapping[str, Any], key: str, what: str) -> date:
     value = opt_date(data, key)
     if value is None:

@@ -28,6 +28,9 @@ WEIGHT_PATH: Final = "/weight-service/weight/range/{start}/{end}"
 WEIGHT_GOALS_PATH: Final = "/goal-service/goal/user/effective/weightgoal/{start}/{end}"
 FITNESS_AGE_PATH: Final = "/fitnessage-service/fitnessage/v2/{day}"
 HEART_RATE_ZONES_PATH: Final = "/biometric-service/heartRateZones/v2"
+NUTRITION_PATH: Final = "/nutrition-service/food/logs/{day}"
+MENSTRUAL_CYCLE_PATH: Final = "/periodichealth-service/menstrualcycle/summary/{day}"
+MENSTRUAL_CYCLE_DAY_PATH: Final = "/periodichealth-service/menstrualcycle/dayview/{day}"
 WELLNESS_ACTIVITIES_PATH: Final = (
     "/wellnessactivity-service/activity/summary/range/{start}/{end}"
 )
