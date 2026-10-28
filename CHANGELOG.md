@@ -21,6 +21,13 @@
   `include_all=True`, and the range's averages; weights are in grams.
 - `async_get_weight_goals()`, typed from Garmin's API description.
 - `async_get_fitness_age()` with its components, and `async_get_heart_rate_zones()` per sport.
+- Activities: `async_get_activity()` for one activity's totals, `async_get_activity_workouts()`
+  for the planned workout it followed, and `async_download_activity()` for the original file
+  as a ZIP archive.
+- `Activity` carries the activity's type and totals (duration, distance, calories, heart rate,
+  speed, elevation, training effect and load), shared with `ActivityDetails` as
+  `ActivityStats`.
+- `async_get_activities()` takes `start_date`, `end_date` and `activity_type` filters.
 
 Range methods raise `ValueError` when `start` is after `end`. Longer ranges than Garmin accepts
 raise `GarminPersonalResponseError` with HTTP status 400.
