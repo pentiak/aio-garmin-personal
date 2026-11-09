@@ -52,6 +52,25 @@ async def test_daily_summary_is_parsed(
     assert summary.body_battery_most_recent_value == 72
     assert summary.body_battery_highest_value == 74
     assert summary.body_battery_lowest_value == 19
+    assert summary.floors_descended == 2.0
+    assert summary.intensity_minutes_goal == 150
+    assert summary.last_seven_days_avg_resting_heart_rate == 56
+    assert summary.max_stress_level == 63
+    assert summary.body_battery_charged_value == 58
+    assert summary.body_battery_drained_value == 3
+    assert summary.body_battery_during_sleep == 55
+    assert summary.body_battery_at_wake_time == 74
+    assert summary.average_spo2 == 95.0
+    assert summary.lowest_spo2 == 87
+    assert summary.latest_spo2 == 96
+    assert summary.latest_spo2_time_gmt == datetime(2026, 10, 23, 6, 9, tzinfo=UTC)
+    assert summary.average_waking_respiration == 15.0
+    assert summary.highest_respiration == 23.0
+    assert summary.lowest_respiration == 9.0
+    assert summary.latest_respiration == 14.0
+    assert summary.latest_respiration_time_gmt == datetime(
+        2026, 10, 23, 6, 11, tzinfo=UTC
+    )
     assert summary.last_sync == datetime(2026, 10, 23, 6, 12, 48, 317000, tzinfo=UTC)
     (call,) = garmin.calls("GET", SUMMARY_PATH)
     assert call.query == {"calendarDate": "2026-10-23"}
@@ -74,6 +93,11 @@ async def test_day_without_data_has_no_metrics(
     assert summary.total_kilocalories is None
     assert summary.total_steps is None
     assert summary.body_battery_most_recent_value is None
+    assert summary.body_battery_charged_value is None
+    assert summary.max_stress_level is None
+    assert summary.average_spo2 is None
+    assert summary.latest_spo2_time_gmt is None
+    assert summary.average_waking_respiration is None
     assert summary.last_sync is None
 
 
