@@ -146,7 +146,7 @@ class DailySummary:
 
     Every metric is `None` when Garmin has no data for it, for example before the first
     sync of the day. Totals, resting calories included, cover the day so far, up to the
-    last sync.
+    last sync. SpO2 values are percentages and respiration values breaths per minute.
     """
 
     user_profile_id: int
@@ -160,15 +160,32 @@ class DailySummary:
     daily_step_goal: int | None
     total_distance_meters: int | None
     floors_ascended: float | None
+    floors_descended: float | None
     moderate_intensity_minutes: int | None
     vigorous_intensity_minutes: int | None
+    intensity_minutes_goal: int | None
     resting_heart_rate: int | None
+    last_seven_days_avg_resting_heart_rate: int | None
     min_heart_rate: int | None
     max_heart_rate: int | None
     average_stress_level: int | None
+    max_stress_level: int | None
     body_battery_most_recent_value: int | None
     body_battery_highest_value: int | None
     body_battery_lowest_value: int | None
+    body_battery_charged_value: int | None
+    body_battery_drained_value: int | None
+    body_battery_during_sleep: int | None
+    body_battery_at_wake_time: int | None
+    average_spo2: float | None
+    lowest_spo2: int | None
+    latest_spo2: int | None
+    latest_spo2_time_gmt: datetime | None
+    average_waking_respiration: float | None
+    highest_respiration: float | None
+    lowest_respiration: float | None
+    latest_respiration: float | None
+    latest_respiration_time_gmt: datetime | None
     last_sync: datetime | None
     raw: Mapping[str, Any] = field(repr=False)
 
@@ -201,15 +218,36 @@ class DailySummary:
             daily_step_goal=opt_int(data, "dailyStepGoal"),
             total_distance_meters=opt_int(data, "totalDistanceMeters"),
             floors_ascended=opt_float(data, "floorsAscended"),
+            floors_descended=opt_float(data, "floorsDescended"),
             moderate_intensity_minutes=opt_int(data, "moderateIntensityMinutes"),
             vigorous_intensity_minutes=opt_int(data, "vigorousIntensityMinutes"),
+            intensity_minutes_goal=opt_int(data, "intensityMinutesGoal"),
             resting_heart_rate=opt_int(data, "restingHeartRate"),
+            last_seven_days_avg_resting_heart_rate=opt_int(
+                data, "lastSevenDaysAvgRestingHeartRate"
+            ),
             min_heart_rate=opt_int(data, "minHeartRate"),
             max_heart_rate=opt_int(data, "maxHeartRate"),
             average_stress_level=opt_int(data, "averageStressLevel"),
+            max_stress_level=opt_int(data, "maxStressLevel"),
             body_battery_most_recent_value=opt_int(data, "bodyBatteryMostRecentValue"),
             body_battery_highest_value=opt_int(data, "bodyBatteryHighestValue"),
             body_battery_lowest_value=opt_int(data, "bodyBatteryLowestValue"),
+            body_battery_charged_value=opt_int(data, "bodyBatteryChargedValue"),
+            body_battery_drained_value=opt_int(data, "bodyBatteryDrainedValue"),
+            body_battery_during_sleep=opt_int(data, "bodyBatteryDuringSleep"),
+            body_battery_at_wake_time=opt_int(data, "bodyBatteryAtWakeTime"),
+            average_spo2=opt_float(data, "averageSpo2"),
+            lowest_spo2=opt_int(data, "lowestSpo2"),
+            latest_spo2=opt_int(data, "latestSpo2"),
+            latest_spo2_time_gmt=opt_gmt_datetime(data, "latestSpo2ReadingTimeGmt"),
+            average_waking_respiration=opt_float(data, "avgWakingRespirationValue"),
+            highest_respiration=opt_float(data, "highestRespirationValue"),
+            lowest_respiration=opt_float(data, "lowestRespirationValue"),
+            latest_respiration=opt_float(data, "latestRespirationValue"),
+            latest_respiration_time_gmt=opt_gmt_datetime(
+                data, "latestRespirationTimeGMT"
+            ),
             last_sync=opt_gmt_datetime(data, "lastSyncTimestampGMT"),
             raw=data,
         )

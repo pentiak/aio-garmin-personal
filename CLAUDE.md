@@ -1,8 +1,8 @@
 # aio-garmin-personal
 
 Async client for the Garmin Connect Personal API, used by the `garmin_connect_personal` Home
-Assistant integration. Project documents are in `../ha-garmin-connect-personal/docs/`; read the
-Status section of `PLAN.md` there first.
+Assistant integration. Project documents are in `../ha-garmin-connect-personal/docs/`:
+`PLAN.md` is the roadmap, `DESIGN.md` and `DECISIONS.md` cover both repositories.
 
 ## Commands
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 - 2026-11-09
+
+### Added
+
+- `DailySummary` types more of the daily summary: floors descended, the intensity minutes
+  goal, the seven-day average resting heart rate, the highest stress level, Body Battery
+  charged, drained, during sleep and at wake time, SpO2 average, lowest and latest with its
+  time, and respiration average while awake, highest, lowest and latest with its time.
+
 ## 0.3.0 - 2026-10-28
 
 ### Added
